@@ -18,6 +18,9 @@
   },
   "homepage": "https://github.com/Muhammad-Hassaan-Farooq/EventExpress#readme",
   "dependencies": {
-    "express": "^4.18.3"
+    "bcrypt": "^5.1.1",
+    "express": "^4.18.3",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.2.0"
   }
 }
