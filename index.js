@@ -3,6 +3,7 @@ const app = express();
 const port = 3000;
 const indexRouter = require("./routes/index");
 const authRouter = require("./routes/auth");
+const eventRouter = require("./routes/event");
 const mongoose = require("mongoose");
 app.use(express.json());
 
@@ -19,6 +20,8 @@ app.use(express.json());
 
 app.use("/", indexRouter);
 app.use("/auth", authRouter);
+app.use("/event", eventRouter)
+
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
