@@ -4,11 +4,13 @@ const {createEvent,getEvents} = require('../controllers/event');
 router.get('/getEvents', getEvents);
 
 router.use((req, res, next) => {
-    if (req.body.role != 'organizer'){
-        return res.json({ msg: "UNAUTHORIZED ACCESS" })
+    const userRole = req.user;
+    console.log(userRole);
+    if (userRole === 'organizer'){
+       next();
     }
     else {
-        next()
+        return res.status(400).json({ message: 'Unauthorized Access' });
     }
 })
 

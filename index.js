@@ -5,6 +5,8 @@ const indexRouter = require("./routes/index");
 const authRouter = require("./routes/auth");
 const eventRouter = require("./routes/event");
 const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
+
 app.use(express.json());
 
 
@@ -20,7 +22,19 @@ app.use(express.json());
 
 app.use("/", indexRouter);
 app.use("/auth", authRouter);
-app.use("/event", eventRouter)
+
+app.use(async (req, res, next) => {
+  try {
+      const token = req.headers.authorization;
+      const user = jwt.verify(token.split(" ")[1], "MY_SECRET")
+      req.user = user;
+      next()
+  } catch (e) {
+      return res.json({ msg: "TOKEN NOT FOUND / INVALID" })
+  }
+})
+
+app.use("/event", eventRouter);
 
 
 app.listen(port, () => {
