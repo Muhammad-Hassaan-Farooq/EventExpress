@@ -10,8 +10,16 @@ const componentSchema = new schema({
     type: Number,
     required: true,
   },
-  elements: {
-    type: [elementSchema],
+  position: {
+    type: Number,
     required: true,
   },
+  elements: [
+    {
+      type: schema.Types.ObjectId,
+      ref: "Element",
+    },
+  ],
 });
+
+module.exports = require("mongoose").model("Component", componentSchema);

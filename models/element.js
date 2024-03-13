@@ -1,3 +1,5 @@
+const mongoose = require("mongoose");
+
 const Schema = require("mongoose").Schema;
 
 const elementSchema = new Schema({
@@ -11,4 +13,4 @@ const elementSchema = new Schema({
   },
 });
 
-(module.exports = Schema.model("Element", elementSchema)), elementSchema;
+module.exports = mongoose.model("Element", elementSchema);
