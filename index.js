@@ -2,17 +2,27 @@ const express = require("express");
 const mongoose = require("mongoose");
 const app = express();
 const port = 3000;
-const indexRouter = require("./routes/index");
+
 const authRouter = require("./routes/auth");
 const eventRouter = require("./routes/event");
+const indexRouter = require("./routes/index");
 const pagebuilderRouter = require("./routes/page-builder");
+const mongoose = require("mongoose");
+const { verifyToken } = require("./middleware/verifyToken");
 
 app.use(express.json());
-
 app.use("/", indexRouter);
 app.use("/auth", authRouter);
+app.use(verifyToken)  // This is the middleware that checks for the token
 app.use("/event", eventRouter);
 app.use("/page-builder", pagebuilderRouter);
+
+
+      
+
+
+
+
 
 const connectDB = async () => {
   try {

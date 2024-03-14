@@ -1,10 +1,20 @@
-const router = require("express").Router();
-const { createEvent } = require("../controllers/event");
 
-router.get("/", (req, res) => {
-  res.send("Event index");
-});
+const router = require('express').Router();
+const {createEvent,getEvents,getEvent,deleteEvent,getMyEvents} = require('../controllers/event');
+const { checkOrganizer } = require('../middleware/checkOrganizer');
 
-router.post("/create", createEvent);
+
+
+router.get('/getEvents', getEvents);
+router.get('/getEvent/:id', getEvent);
+
+
+router.use(checkOrganizer)     // This is the middleware that checks for the role of the user is organizer
+
+router.post('/createEvent', createEvent);
+router.post('/deleteEvent', deleteEvent);
+router.get('/myEvents', getMyEvents);
+
 
 module.exports = router;
+
