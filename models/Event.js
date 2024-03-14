@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+
 // Define the schema for the Event model
 const eventSchema = new mongoose.Schema({
   title: {
@@ -23,7 +24,7 @@ const eventSchema = new mongoose.Schema({
     //required: true
   },
   organizer: {
-    type: String,
+    type: String, // Reference to the User model
     //required: true
   },
   attendees: {

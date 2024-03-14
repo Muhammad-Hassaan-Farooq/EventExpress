@@ -32,7 +32,7 @@ const login = async (req, res) => {
         if (!passwordCheck) return res.status(400).json({message: "Invalid password"});
 
         const token = jwt.sign({
-            email,
+            id: user._id,
             role: user.role,
             createdAt: new Date(),
         }, 'MY_SECRET', {expiresIn: '1d'});

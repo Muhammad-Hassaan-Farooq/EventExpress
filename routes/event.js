@@ -1,20 +1,17 @@
 const router = require('express').Router();
-const {createEvent,getEvents} = require('../controllers/event');
+const {createEvent,getEvents,getEvent,deleteEvent} = require('../controllers/event');
+const { checkOrganizer } = require('../middleware/checkOrganizer');
+
+
 
 router.get('/getEvents', getEvents);
+router.get('/getEvent/:id', getEvent);
 
-router.use((req, res, next) => {
-    const userRole = req.user;
-    console.log(userRole);
-    if (userRole === 'organizer'){
-       next();
-    }
-    else {
-        return res.status(400).json({ message: 'Unauthorized Access' });
-    }
-})
+
+router.use(checkOrganizer)     // This is the middleware that checks for the role of the user is organizer
 
 router.post('/createEvent', createEvent);
+router.post('/deleteEvent', deleteEvent);
 
 
 module.exports = router;

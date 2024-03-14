@@ -1,11 +1,10 @@
 const express = require("express");
 const app = express();
 const port = 3000;
-const indexRouter = require("./routes/index");
 const authRouter = require("./routes/auth");
 const eventRouter = require("./routes/event");
 const mongoose = require("mongoose");
-const jwt = require("jsonwebtoken");
+const { verifyToken } = require("./middleware/verifyToken");
 
 app.use(express.json());
 
@@ -20,19 +19,9 @@ app.use(express.json());
 }
 )();
 
-app.use("/", indexRouter);
 app.use("/auth", authRouter);
 
-app.use(async (req, res, next) => {
-  try {
-      const token = req.headers.authorization;
-      const user = jwt.verify(token.split(" ")[1], "MY_SECRET")
-      req.user = user;
-      next()
-  } catch (e) {
-      return res.json({ msg: "TOKEN NOT FOUND / INVALID" })
-  }
-})
+app.use(verifyToken)        // This is the middleware that checks for the token
 
 app.use("/event", eventRouter);
 
