@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const {createEvent,getEvents,getEvent,deleteEvent} = require('../controllers/event');
+const {createEvent,getEvents,getEvent,deleteEvent,getMyEvents} = require('../controllers/event');
 const { checkOrganizer } = require('../middleware/checkOrganizer');
 
 
@@ -12,6 +12,7 @@ router.use(checkOrganizer)     // This is the middleware that checks for the rol
 
 router.post('/createEvent', createEvent);
 router.post('/deleteEvent', deleteEvent);
+router.get('/myEvents', getMyEvents);
 
 
 module.exports = router;

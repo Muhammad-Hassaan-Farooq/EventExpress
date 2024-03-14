@@ -48,11 +48,23 @@ const deleteEvent = async (req, res) => {
         }catch (error){
             console.log(error);
         }
- }
+}
+
+const getMyEvents = async (req, res) => {
+    try {
+        const events = await Event.find({ organizer: req.user.id });
+        res.status(200).json(events);
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+
 
 module.exports = {
     createEvent,
     getEvents,
     getEvent,
     deleteEvent,
+    getMyEvents,
 }
