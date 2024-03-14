@@ -1,3 +1,4 @@
+
 const Event = require('../models/Event');
 
 // Create a new event
@@ -68,3 +69,4 @@ module.exports = {
     deleteEvent,
     getMyEvents,
 }
+

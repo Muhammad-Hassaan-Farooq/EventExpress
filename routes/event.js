@@ -1,3 +1,4 @@
+
 const router = require('express').Router();
 const {createEvent,getEvents,getEvent,deleteEvent,getMyEvents} = require('../controllers/event');
 const { checkOrganizer } = require('../middleware/checkOrganizer');
@@ -16,3 +17,4 @@ router.get('/myEvents', getMyEvents);
 
 
 module.exports = router;
+
