@@ -6,17 +6,22 @@ const port = 3000;
 const authRouter = require("./routes/auth");
 const eventRouter = require("./routes/event");
 const pagebuilderRouter = require("./routes/page-builder");
+const accountManagementRouter = require("./routes/accountManagement");
 const { verifyToken } = require("./middleware/verifyToken");
+const { checkAdmin } = require("./middleware/checkAdmin");
 
 app.use(express.json());
 app.use("/auth", authRouter);
 app.use(verifyToken); // This is the middleware that checks for the token
 app.use("/event", eventRouter);
 app.use("/page-builder", pagebuilderRouter);
+app.use(checkAdmin); // This is the middleware that checks for the admin role
+app.use("/accountManagement", accountManagementRouter);
+
 
 const connectDB = async () => {
   try {
-    await mongoose.connect("mongodb://localhost:27017/event-express");
+    await mongoose.connect("mongodb://localhost:27017/EventExpress");
     console.log("Connected to the database");
     app.listen(port, () => {
       console.log(`Server is running on port ${port}`);
