@@ -18,7 +18,6 @@ const changePassword = async (req, res) => {
         return res.status(400).json({message: "Invalid password"});
     }
 } catch (error) {
-    console.log(error);
     res.status(500).json({message: "An error occurred while changing the password"});
     }
 }
@@ -48,7 +47,6 @@ const changeRole = async (req, res) => {
     
 
     } catch (error) {
-        console.log(error);
         res.status(500).json({message: "An error occurred while changing the role"});
     }
 
@@ -69,10 +67,8 @@ const deleteAccount = async (req, res) => {
                 return res.status(200).json({message: "Account deleted successfully"});
             }
             return res.status(400).json({message: "You can only delete the account of a user or organizer"});
-        
         }
     }catch (error) {
-        console.log(error);
         res.status(500).json({message: "An error occurred while deleting the account"});
     }
 }
@@ -81,10 +77,9 @@ const deleteAccount = async (req, res) => {
 //not working
 const deleteMyAccount = async (req, res) => {
     try {
-        await Event.deleteOne({ _id: req.body.id });
+        await Users.deleteOne({ _id: req.body.id });
         return res.status(200).json({message: "Account deleted successfully"});
     }catch (error) {
-        console.log(error);
         res.status(500).json({message: "An error occurred while deleting the account"});
     }
 }

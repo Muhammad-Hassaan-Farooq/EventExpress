@@ -37,7 +37,7 @@ const getEvents = async (req, res) => {
     const events = await Event.find();
     res.status(200).json(events);
   } catch (error) {
-    console.log(error);
+    res.status(500).send("An error occurred while getting the events");
   }
 };
 
@@ -47,7 +47,7 @@ const getEvent = async (req, res) => {
     const event = await Event.findById(req.params.id);
     res.status(200).json(event);
   } catch (error) {
-    console.log(error);
+    res.status(500).send("An error occurred while getting the event");
   }
 };
 
@@ -65,7 +65,7 @@ const deleteEvent = async (req, res) => {
       res.status(401).send("You are not authorized to delete this event");
     }
   } catch (error) {
-    console.log(error);
+    res.status(500).send("An error occurred while deleting the event");
   }
 };
 
@@ -75,7 +75,7 @@ const getMyEvents = async (req, res) => {
     const events = await Event.find({ organizer: req.user.id });
     res.status(200).json(events);
   } catch (error) {
-    console.log(error);
+    res.status(500).send("An error occurred while getting the events");
   }
 };
 
