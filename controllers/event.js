@@ -69,6 +69,7 @@ const deleteEvent = async (req, res) => {
   }
 };
 
+// View all the events made by the specific organizer
 const getMyEvents = async (req, res) => {
   try {
     const events = await Event.find({ organizer: req.user.id });

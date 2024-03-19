@@ -1,4 +1,3 @@
-
 const router = require('express').Router();
 const {login,signUp,forgetPassword} = require('../controllers/auth');
 
