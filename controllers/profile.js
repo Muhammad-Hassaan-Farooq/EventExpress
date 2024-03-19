@@ -73,16 +73,39 @@ const deleteAccount = async (req, res) => {
     }
 }
 
-
-//not working
 const deleteMyAccount = async (req, res) => {
     try {
-        await Users.deleteOne({ _id: req.body.id });
-        return res.status(200).json({message: "Account deleted successfully"});
-    }catch (error) {
-        res.status(500).json({message: "An error occurred while deleting the account"});
+        // Check if the password is provided in the request body
+        if (!req.body.password) {
+            return res.status(400).json({ message: "Password is required to delete the account" });
+        }
+        
+        // Retrieve the user from the database
+        const user = await Users.findById(req.user.id);
+        
+        // Check if the user exists
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Compare the provided password with the hashed password stored in the database
+        const passwordMatch = await bcrypt.compare(req.body.password, user.password);
+
+        // If the passwords don't match, return an error
+        if (!passwordMatch) {
+            return res.status(401).json({ message: "Incorrect password. Please try again." });
+        }
+
+        // If the passwords match, proceed with deleting the account
+        await Users.deleteOne({ _id: req.user.id });
+        
+        return res.status(200).json({ message: "Account deleted successfully" });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "An error occurred while deleting the account" });
     }
 }
+
 
 module.exports = {
     changePassword,
