@@ -78,10 +78,32 @@ const getMyEvents = async (req, res) => {
   }
 };
 
+const changeEventDetails = async (req, res) => {
+  try {
+    const {title, description, startDate, endDate, location, price} = req.body;
+    let event = await Event.findOne({title});
+    //organizer check not necessary because the user can only change the details of the event they createdriv
+    if (event) {
+      event.title = title;
+      event.description = description;
+      event.startDate = startDate;
+      event.endDate = endDate;
+      event.location = location;
+      event.price = price;
+      await event.save();
+      res.status(200).json({message: "Event details changed successfully"});
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({message: "An error occurred while changing the event details"});
+  }
+}
+
 module.exports = {
   createEvent,
   getEvents,
   getEvent,
   deleteEvent,
   getMyEvents,
+  changeEventDetails,
 };
