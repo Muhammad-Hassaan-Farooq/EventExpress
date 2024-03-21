@@ -51,7 +51,7 @@ const forgetPassword = async (req, res) => {
         const user = await Users.findOne({email});
 
         if (user){
-            return res.status(200).json({message: "Password changed successfully"});
+            return res.status(200).json({message: "Link sent to your email address", email});
         }  
         return res.status(400).json({message: "User not found"});      
     } catch (error) {

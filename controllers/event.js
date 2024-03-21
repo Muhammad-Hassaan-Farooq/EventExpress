@@ -80,23 +80,35 @@ const getMyEvents = async (req, res) => {
 
 const changeEventDetails = async (req, res) => {
   try {
-    const {title, description, startDate, endDate, location, price} = req.body;
-    let event = await Event.findOne({title});
-    //organizer check not necessary because the user can only change the details of the event they createdriv
-    if (event) {
-      event.title = title;
-      event.description = description;
-      event.startDate = startDate;
-      event.endDate = endDate;
-      event.location = location;
-      event.price = price;
-      await event.save();
-      res.status(200).json({message: "Event details changed successfully"});
+    const { title, description, date, location, price } = req.body;
+    let event = await Event.findOne({ _id: req.body.id });
+    if (!event) {
+      return res.status(404).send("Event not found")
     }
+    //organizer check not necessary because the user can only change the details of the event they createdriv
+
+    if (title !== undefined) {
+      event.title = title;
+    }
+    if (description !== undefined) {
+      event.description = description;
+    }
+    if (date !== undefined) {
+      event.date = date;
+    }
+    if (location !== undefined) {
+      event.location = location;
+    }
+    if (price !== undefined) {
+      event.price = price;
+    }
+    await event.save();
+    res.status(200).json({ message: "Event details changed successfully" });
+
   } catch (error) {
-    console.log(error);
-    res.status(500).json({message: "An error occurred while changing the event details"});
-  }
+  console.log(error);
+  res.status(500).json({ message: "An error occurred while changing the event details" });
+}
 }
 
 const searchByDate = async (req, res) => {
@@ -107,8 +119,8 @@ const searchByDate = async (req, res) => {
 
     const events = await Event.find({
       date: {
-        $gte: formattedDate + "T00:00:00.000Z", 
-        $lt: formattedDate + "T23:59:59.999Z" 
+        $gte: formattedDate + "T00:00:00.000Z",
+        $lt: formattedDate + "T23:59:59.999Z"
       }
     });
 
@@ -125,7 +137,7 @@ const searchByDate = async (req, res) => {
 const searchByLocation = async (req, res) => {
   try {
     const location = req.body.location;
-    const events = await Event.find({location});
+    const events = await Event.find({ location });
     if (events.length === 0) {
       return res.status(404).send("No events found in the entered location");
     }

@@ -7,6 +7,9 @@ const changePassword = async (req, res) => {
 
     const {email, oldPassword, newPassword} = req.body;
     let user = await Users.findOne({email});
+    if (!user){
+        return res.status(404).json({message: "User not found"});
+    }
 
     if (user){
         const passwordCheck = await bcrypt.compare(oldPassword, user.password);
