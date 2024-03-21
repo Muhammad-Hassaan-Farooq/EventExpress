@@ -6,8 +6,7 @@ const createEvent = async (req, res) => {
     let {
       title,
       description,
-      startDate,
-      endDate,
+      date,
       location,
       organizer,
       attendees,
@@ -17,13 +16,13 @@ const createEvent = async (req, res) => {
     await Event.create({
       title,
       description,
-      startDate,
-      endDate,
+      date: new Date(date),
       location,
       organizer,
       attendees,
       price,
     });
+
     res.status(201).send("Event created successfully");
   } catch (error) {
     console.log(error);
@@ -100,6 +99,30 @@ const changeEventDetails = async (req, res) => {
   }
 }
 
+const searchByDate = async (req, res) => {
+  try {
+    const date = req.body.date;
+    const startDate = new Date(date);
+    const formattedDate = startDate.toISOString().split('T')[0];
+
+    const events = await Event.find({
+      date: {
+        $gte: formattedDate + "T00:00:00.000Z", 
+        $lt: formattedDate + "T23:59:59.999Z" 
+      }
+    });
+
+    if (events.length === 0) {
+      return res.status(404).send("No events found on the entered date");
+    }
+
+    res.status(200).json(events);
+  } catch (error) {
+    res.status(500).send("An error occurred while getting the events");
+  }
+}
+
+
 module.exports = {
   createEvent,
   getEvents,
@@ -107,4 +130,5 @@ module.exports = {
   deleteEvent,
   getMyEvents,
   changeEventDetails,
+  searchByDate,
 };
