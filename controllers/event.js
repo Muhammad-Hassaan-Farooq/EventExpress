@@ -149,6 +149,20 @@ const searchByLocation = async (req, res) => {
 }
 
 
+const searchByPrice = async (req, res) => {
+  try {
+    const { minPrice, maxPrice } = req.body;
+    const events = await Event.find({ price: { $gte: minPrice, $lte: maxPrice } });
+    if (events.length === 0) {
+      return res.status(404).send("No events found within the specified price range");
+    }
+    res.status(200).json(events);
+  } catch (error) {
+    res.status(500).send("An error occurred while getting the events");
+  }
+}
+
+
 module.exports = {
   createEvent,
   getEvents,
@@ -157,5 +171,6 @@ module.exports = {
   getMyEvents,
   changeEventDetails,
   searchByDate,
-  searchByLocation
+  searchByLocation,
+  searchByPrice
 };
