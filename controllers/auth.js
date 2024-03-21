@@ -18,7 +18,7 @@ const signUp = async (req,res) =>{
         await Users.create({...req.body, password: await bcrypt.hash(password, 5)});
         return res.status(201).json({message: "User created"});
     } catch (error) {
-        console.log(error);
+        res.status(500).json({message: "An error occurred while signing up"});
     }
 } 
 
@@ -41,7 +41,7 @@ const login = async (req, res) => {
             msg: 'LOGGED IN', token
         });
     } catch (error) {
-        console.log(error);
+        res.status(500).json({message: "An error occurred while logging in"});
     }
 }
 
@@ -51,11 +51,10 @@ const forgetPassword = async (req, res) => {
         const user = await Users.findOne({email});
 
         if (user){
-            return res.status(200).json({message: "Password changed successfully"});
+            return res.status(200).json({message: "Link sent to your email address", email});
         }  
         return res.status(400).json({message: "User not found"});      
     } catch (error) {
-        console.log(error);
         res.status(500).json({message: "An error occurred while forgetting password"});
 
     }

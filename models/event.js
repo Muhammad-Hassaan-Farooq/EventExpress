@@ -10,21 +10,17 @@ const eventSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  startDate: {
+  date: {
     type: Date,
-    //required: true
-  },
-  endDate: {
-    type: Date,
-    //required: true
+    required: true,
+    default: Date.now
   },
   location: {
     type: String,
-    //required: true
+    required: true
   },
   organizer: {
     type: String, // Reference to the User model
-    //required: true
   },
   attendees: {
     type: [String], // Assuming attendees are represented by their usernames or IDs
@@ -32,7 +28,7 @@ const eventSchema = new mongoose.Schema({
   },
   price: {
     type: Number,
-    default: 0,
+    required: true,
   },
   createdAt: {
     type: Date,

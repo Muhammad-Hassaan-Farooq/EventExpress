@@ -1,7 +1,8 @@
 const router = require('express').Router();
-const {getAllOrganizers,deleteOrganizer} = require('../controllers/accountManagement');
+const {getAllOrganizers,deleteAccount,changeRole} = require('../controllers/accountManagement');
 
 router.get('/getOrganizers', getAllOrganizers);
-router.post('/deleteOrganizer/:id', deleteOrganizer);
+router.post('/deleteAccount', deleteAccount);
+router.post('/changeRole', changeRole);
 
 module.exports = router;
