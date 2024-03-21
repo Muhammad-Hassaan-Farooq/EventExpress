@@ -122,6 +122,20 @@ const searchByDate = async (req, res) => {
   }
 }
 
+const searchByLocation = async (req, res) => {
+  try {
+    const location = req.body.location;
+    const events = await Event.find({location});
+    if (events.length === 0) {
+      return res.status(404).send("No events found in the entered location");
+    }
+    res.status(200).json(events);
+  } catch (error) {
+    res.status(500).send("An error occurred while getting the events");
+  }
+
+}
+
 
 module.exports = {
   createEvent,
@@ -131,4 +145,5 @@ module.exports = {
   getMyEvents,
   changeEventDetails,
   searchByDate,
+  searchByLocation
 };
