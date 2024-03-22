@@ -6,7 +6,7 @@ const port = 3000;
 const authRouter = require("./routes/auth");
 const eventRouter = require("./routes/event");
 const pagebuilderRouter = require("./routes/page-builder");
-
+const ticketingRouter = require("./routes/ticketing");
 const accountManagementRouter = require("./routes/accountManagement");
 
 const profileRouter = require("./routes/profile");
@@ -19,10 +19,10 @@ app.use("/auth", authRouter);
 app.use(verifyToken); // This is the middleware that checks for the token
 app.use("/event", eventRouter);
 app.use("/profile", profileRouter);
+app.use("/ticketing", ticketingRouter);
 app.use("/page-builder", pagebuilderRouter);
 app.use(checkAdmin); // This is the middleware that checks for the admin role
 app.use("/accountManagement", accountManagementRouter);
-
 
 const connectDB = async () => {
   try {
