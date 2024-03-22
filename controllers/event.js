@@ -72,7 +72,7 @@ const deleteEvent = async (req, res) => {
 // View all the events made by the specific organizer
 const getMyEvents = async (req, res) => {
   try {
-    const events = await Event.find({ organizer: req.user.id });
+    const events = await Event.find({ organizer: req.user.id});
     res.status(200).json(events);
   } catch (error) {
     res.status(500).send("An error occurred while getting the events");

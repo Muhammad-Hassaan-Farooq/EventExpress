@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 
 const userRoles = ['admin', 'user', 'organizer'];
+const schema = mongoose.Schema;
+
+
 
 const UserSchema = new mongoose.Schema({
     email: { type: String, required: true },
@@ -11,6 +14,28 @@ const UserSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now
+    },
+    status : {
+        type: String, enum: ['active', 'inactive'],
+        default: 'active'
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now
+    },
+    updatedBy: {
+        type: schema.Types.ObjectId,
+        ref: "Users",
+    },
+    isDeleted : {
+        type: Boolean, default: false
+    },
+    deletedAt: {
+        type : Date
+    },
+    deletedBy: {
+        type: schema.Types.ObjectId,
+        ref: "Users",
     },
 });
 

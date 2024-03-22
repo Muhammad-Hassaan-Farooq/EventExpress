@@ -5,8 +5,8 @@ const bcrypt = require("bcrypt");
 const changePassword = async (req, res) => {
     try {
 
-    const {email, oldPassword, newPassword} = req.body;
-    let user = await Users.findOne({email});
+    const { oldPassword, newPassword} = req.body;
+    let user = await Users.findById(req.user.id);
     if (!user){
         return res.status(404).json({message: "User not found"});
     }
