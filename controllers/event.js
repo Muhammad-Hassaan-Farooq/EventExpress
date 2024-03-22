@@ -1,4 +1,4 @@
-const Event = require("../models/Event");
+const Event = require("../models/event");
 const Users = require("../models/User");
 
 // Create a new event
@@ -9,7 +9,6 @@ const createEvent = async (req, res) => {
       description,
       date,
       location,
-      organizer,
       attendees,
       price,
     } = req.body;
@@ -22,6 +21,8 @@ const createEvent = async (req, res) => {
       organizer,
       attendees,
       price,
+      createdBy: req.user.name,
+      updatedBy: req.user.name,
     });
 
     res.status(201).send("Event created successfully");
@@ -59,7 +60,10 @@ const deleteEvent = async (req, res) => {
       return res.status(404).send("Event not found");
     }
     if (event.organizer == req.user.id) {
-      await Event.deleteOne({ _id: req.body.id });
+      event.is_deleted = true;
+      event.deletedAt = new Date();
+      event.deletedBy = req.user.name;
+      await event.save();
       res.status(200).send("Event deleted successfully");
     } else {
       res.status(401).send("You are not authorized to delete this event");
@@ -103,6 +107,9 @@ const changeEventDetails = async (req, res) => {
     if (price !== undefined) {
       event.price = price;
     }
+    event.updatedBy = req.user.name;
+    event.updatedAt = new Date();
+
     await event.save();
     res.status(200).json({ message: "Event details changed successfully" });
 
