@@ -5,8 +5,8 @@ const userRoles = ['admin', 'user', 'organizer'];
 const UserSchema = new mongoose.Schema({
     email: { type: String, required: true },
     password: { type: String, required: true },
-    firstName: { type: String },
-    lastName: { type: String },
+    firstName: { type: String,required: true},
+    lastName: { type: String ,required: true},
     role: { type: String, enum: userRoles, required: true },
     createdAt: {
         type: Date,
