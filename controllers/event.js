@@ -1,4 +1,5 @@
 const Event = require("../models/Event");
+const Users = require("../models/User");
 
 // Create a new event
 const createEvent = async (req, res) => {
@@ -145,7 +146,19 @@ const searchByLocation = async (req, res) => {
   } catch (error) {
     res.status(500).send("An error occurred while getting the events");
   }
+}
 
+const searchByOrganizer = async (req,res) =>{
+  try{
+    const id = req.body.org_id;
+    const events = await Event.find({organizer: id});
+    if(events.length === 0){
+      return res.status(404).send("No events found by the entered organizer");
+    }
+    res.status(200).json(events);
+  } catch (error) {
+    res.status(500).send("An error occurred while getting the events");
+  }
 }
 
 
@@ -157,5 +170,6 @@ module.exports = {
   getMyEvents,
   changeEventDetails,
   searchByDate,
-  searchByLocation
+  searchByLocation,
+  searchByOrganizer,
 };
