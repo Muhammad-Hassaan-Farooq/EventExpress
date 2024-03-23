@@ -90,8 +90,10 @@ const changeEventDetails = async (req, res) => {
     if (!event) {
       return res.status(404).send("Event not found")
     }
-    //organizer check not necessary because the user can only change the details of the event they createdriv
-
+    if (event.organizer != req.user.id) {
+      return res.status(401).send("You are not authorized to change this event details");
+    }
+    
     if (title !== undefined) {
       event.title = title;
     }
@@ -192,8 +194,6 @@ module.exports = {
   changeEventDetails,
   searchByDate,
   searchByLocation,
-
   searchByOrganizer,
   searchByPrice
-
 };

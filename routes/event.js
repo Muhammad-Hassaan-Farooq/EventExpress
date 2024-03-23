@@ -11,9 +11,7 @@ router.get('/getEvents', getEvents);
 router.get('/getEvent/:id', getEvent);
 router.post('/getByDate',searchByDate);
 router.post('/getByLocation',searchByLocation);
-
 router.post('/getByOrganizer',searchByOrganizer)
-
 router.post('/getByPrice', searchByPrice);
 
 

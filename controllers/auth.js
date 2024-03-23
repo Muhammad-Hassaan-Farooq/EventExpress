@@ -68,8 +68,6 @@ const forgetPassword = async (req, res) => {
 }
 
 const sendEmail = async (email, newPassword) => {
-    // Configure nodemailer to use your email service provider
-
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -78,7 +76,6 @@ const sendEmail = async (email, newPassword) => {
         }
     });
 
-    // Email content
     const mailOptions = {
         from: 'shaheeralam.alam@gmail.com',
         to: email,
@@ -86,7 +83,6 @@ const sendEmail = async (email, newPassword) => {
         text: `Your new password is: ${newPassword}. Please use this password to login and then reset it.`
     };
 
-    // Send email
     await transporter.sendMail(mailOptions);
 }
 
