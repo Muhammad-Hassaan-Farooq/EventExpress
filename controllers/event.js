@@ -7,7 +7,8 @@ const createEvent = async (req, res) => {
     let {
       title,
       description,
-      date,
+      startDate,
+      endDate,
       location,
       organizer,
       attendees,
@@ -17,7 +18,8 @@ const createEvent = async (req, res) => {
     await Event.create({
       title,
       description,
-      date: new Date(date),
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
       location,
       organizer,
       attendees,
@@ -81,7 +83,7 @@ const getMyEvents = async (req, res) => {
 
 const changeEventDetails = async (req, res) => {
   try {
-    const { title, description, date, location, price } = req.body;
+    const { title, description, startDate, endDate,  location, price } = req.body;
     let event = await Event.findOne({ _id: req.body.id });
     if (!event) {
       return res.status(404).send("Event not found")
@@ -94,8 +96,11 @@ const changeEventDetails = async (req, res) => {
     if (description !== undefined) {
       event.description = description;
     }
-    if (date !== undefined) {
-      event.date = date;
+    if (startDate !== undefined) {
+      event.date = startDate;
+    }
+    if (endDate !== undefined) {
+      event.date = endDate;
     }
     if (location !== undefined) {
       event.location = location;
@@ -112,6 +117,7 @@ const changeEventDetails = async (req, res) => {
 }
 }
 
+//error gives events of one day prior to the entered date
 const searchByDate = async (req, res) => {
   try {
     const date = req.body.date;
@@ -119,7 +125,7 @@ const searchByDate = async (req, res) => {
     const formattedDate = startDate.toISOString().split('T')[0];
 
     const events = await Event.find({
-      date: {
+      startDate: {
         $gte: formattedDate + "T00:00:00.000Z",
         $lt: formattedDate + "T23:59:59.999Z"
       }
