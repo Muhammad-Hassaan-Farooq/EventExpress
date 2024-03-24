@@ -34,6 +34,31 @@ const eventSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
+  deletedAt: {
+    type: Date,
+    default: null,
+  },
+  is_deleted:{
+    type: Boolean,
+    default: false,
+  },
+  createdBy:{
+    type: String,
+    required: true,  
+  },
+  updatedBy:{
+    type: String,
+    default: null,
+    required:true,
+  },
+  deletedBy:{
+    type: String,
+    default: null,
+  }
 });
 
 // Create the Event model using the schema
