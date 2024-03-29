@@ -8,7 +8,7 @@ const elementSchema = new Schema({
     required: true,
   },
   content: {
-    type: String,
+    type: Schema.Types.Mixed,
     required: true,
   },
 });

@@ -1,20 +1,14 @@
 const Event = require("../models/Event");
 const Users = require("../models/User");
+const Attendees = require("../models/attendees");
 
 // Create a new event
 const createEvent = async (req, res) => {
   try {
-    let {
-      title,
-      description,
-      date,
-      location,
-      organizer,
-      attendees,
-      price,
-    } = req.body;
+    let { title, description, date, location, organizer, attendees, price } =
+      req.body;
     organizer = req.user.id;
-    await Event.create({
+    const newEvent = await Event.create({
       title,
       description,
       date: new Date(date),
@@ -23,6 +17,11 @@ const createEvent = async (req, res) => {
       attendees,
       price,
     });
+
+    if (!createAttendeeList(newEvent._id)) {
+      newEvent.delete();
+      return res.status(500).send("An error occurred while creating the event");
+    }
 
     res.status(201).send("Event created successfully");
   } catch (error) {
@@ -84,7 +83,7 @@ const changeEventDetails = async (req, res) => {
     const { title, description, date, location, price } = req.body;
     let event = await Event.findOne({ _id: req.body.id });
     if (!event) {
-      return res.status(404).send("Event not found")
+      return res.status(404).send("Event not found");
     }
     //organizer check not necessary because the user can only change the details of the event they createdriv
 
@@ -105,24 +104,25 @@ const changeEventDetails = async (req, res) => {
     }
     await event.save();
     res.status(200).json({ message: "Event details changed successfully" });
-
   } catch (error) {
-  console.log(error);
-  res.status(500).json({ message: "An error occurred while changing the event details" });
-}
-}
+    console.log(error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while changing the event details" });
+  }
+};
 
 const searchByDate = async (req, res) => {
   try {
     const date = req.body.date;
     const startDate = new Date(date);
-    const formattedDate = startDate.toISOString().split('T')[0];
+    const formattedDate = startDate.toISOString().split("T")[0];
 
     const events = await Event.find({
       date: {
         $gte: formattedDate + "T00:00:00.000Z",
-        $lt: formattedDate + "T23:59:59.999Z"
-      }
+        $lt: formattedDate + "T23:59:59.999Z",
+      },
     });
 
     if (events.length === 0) {
@@ -133,7 +133,7 @@ const searchByDate = async (req, res) => {
   } catch (error) {
     res.status(500).send("An error occurred while getting the events");
   }
-}
+};
 
 const searchByLocation = async (req, res) => {
   try {
@@ -146,35 +146,47 @@ const searchByLocation = async (req, res) => {
   } catch (error) {
     res.status(500).send("An error occurred while getting the events");
   }
-}
+};
 
-const searchByOrganizer = async (req,res) =>{
-  try{
+const searchByOrganizer = async (req, res) => {
+  try {
     const id = req.body.org_id;
-    const events = await Event.find({organizer: id});
-    if(events.length === 0){
+    const events = await Event.find({ organizer: id });
+    if (events.length === 0) {
       return res.status(404).send("No events found by the entered organizer");
     }
     res.status(200).json(events);
   } catch (error) {
     res.status(500).send("An error occurred while getting the events");
   }
-}
-
+};
 
 const searchByPrice = async (req, res) => {
   try {
     const { minPrice, maxPrice } = req.body;
-    const events = await Event.find({ price: { $gte: minPrice, $lte: maxPrice } });
+    const events = await Event.find({
+      price: { $gte: minPrice, $lte: maxPrice },
+    });
     if (events.length === 0) {
-      return res.status(404).send("No events found within the specified price range");
+      return res
+        .status(404)
+        .send("No events found within the specified price range");
     }
     res.status(200).json(events);
   } catch (error) {
     res.status(500).send("An error occurred while getting the events");
   }
-}
+};
 
+async function createAttendeeList(eventID) {
+  try {
+    const attendee = new Attendees({ eventID });
+    await attendee.save();
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
 
 module.exports = {
   createEvent,
@@ -187,6 +199,5 @@ module.exports = {
   searchByLocation,
 
   searchByOrganizer,
-  searchByPrice
-
+  searchByPrice,
 };
