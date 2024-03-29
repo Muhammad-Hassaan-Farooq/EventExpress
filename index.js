@@ -9,6 +9,7 @@ const pagebuilderRouter = require("./routes/page-builder");
 const ticketingRouter = require("./routes/ticketing");
 const accountManagementRouter = require("./routes/accountManagement");
 
+
 const profileRouter = require("./routes/profile");
 
 const { verifyToken } = require("./middleware/verifyToken");
@@ -17,6 +18,7 @@ const { checkAdmin } = require("./middleware/checkAdmin");
 app.use(express.json());
 app.use("/auth", authRouter);
 app.use(verifyToken); // This is the middleware that checks for the token
+
 app.use("/event", eventRouter);
 app.use("/profile", profileRouter);
 app.use("/ticketing", ticketingRouter);

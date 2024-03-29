@@ -1,12 +1,20 @@
-const Event = require("../models/Event");
+const Event = require("../models/event");
 const Users = require("../models/User");
 const Attendees = require("../models/attendees");
 
 // Create a new event
 const createEvent = async (req, res) => {
   try {
-    let { title, description, date, location, organizer, attendees, price } =
-      req.body;
+
+    let {
+      title,
+      description,
+      date,
+      location,
+      attendees,
+      price,
+    } = req.body;
+
     organizer = req.user.id;
     const newEvent = await Event.create({
       title,
@@ -16,6 +24,8 @@ const createEvent = async (req, res) => {
       organizer,
       attendees,
       price,
+      createdBy: req.user.name,
+      updatedBy: req.user.name,
     });
 
     if (!createAttendeeList(newEvent._id)) {
@@ -58,7 +68,10 @@ const deleteEvent = async (req, res) => {
       return res.status(404).send("Event not found");
     }
     if (event.organizer == req.user.id) {
-      await Event.deleteOne({ _id: req.body.id });
+      event.is_deleted = true;
+      event.deletedAt = new Date();
+      event.deletedBy = req.user.name;
+      await event.save();
       res.status(200).send("Event deleted successfully");
     } else {
       res.status(401).send("You are not authorized to delete this event");
@@ -71,7 +84,7 @@ const deleteEvent = async (req, res) => {
 // View all the events made by the specific organizer
 const getMyEvents = async (req, res) => {
   try {
-    const events = await Event.find({ organizer: req.user.id });
+    const events = await Event.find({ organizer: req.user.id});
     res.status(200).json(events);
   } catch (error) {
     res.status(500).send("An error occurred while getting the events");
@@ -85,8 +98,10 @@ const changeEventDetails = async (req, res) => {
     if (!event) {
       return res.status(404).send("Event not found");
     }
-    //organizer check not necessary because the user can only change the details of the event they createdriv
-
+    if (event.organizer != req.user.id) {
+      return res.status(401).send("You are not authorized to change this event details");
+    }
+    
     if (title !== undefined) {
       event.title = title;
     }
@@ -102,6 +117,9 @@ const changeEventDetails = async (req, res) => {
     if (price !== undefined) {
       event.price = price;
     }
+    event.updatedBy = req.user.name;
+    event.updatedAt = new Date();
+
     await event.save();
     res.status(200).json({ message: "Event details changed successfully" });
   } catch (error) {
@@ -197,7 +215,8 @@ module.exports = {
   changeEventDetails,
   searchByDate,
   searchByLocation,
-
   searchByOrganizer,
-  searchByPrice,
+
+  searchByPrice
+
 };
