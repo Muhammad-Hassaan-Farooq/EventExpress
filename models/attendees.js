@@ -7,6 +7,7 @@ const attendeeSchema = schema({
       user: {
         type: schema.Types.ObjectId,
         ref: "Users",
+        required: true,
       },
       count: {
         type: Number,
@@ -17,6 +18,7 @@ const attendeeSchema = schema({
   eventID: {
     type: schema.Types.ObjectId,
     ref: "Event",
+    required: true,
   },
 });
 

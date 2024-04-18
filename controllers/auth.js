@@ -20,7 +20,9 @@ const signUp = async (req,res) =>{
         await Users.create({...req.body, password: await bcrypt.hash(password, 5)});
         return res.status(201).json({success:true, msg: "User created successfully",data:[]});
     } catch (error) {
+
         res.status(500).json({success:false ,msg: "An error occurred while creating the user",data:[]});
+
     }
 } 
 
@@ -28,8 +30,10 @@ const signUp = async (req,res) =>{
 const login = async (req, res) => {
     try {
         const {email, password} = req.body;
+
         const user = await Users.findOne({email});
         if (!user) return res.status(200).json({success:true, msg: "User not found",data:[]});
+
 
         const passwordCheck = await bcrypt.compare(password, user.password);
         if (!passwordCheck) return res.status(200).json({success:true, msg: "Invalid password",data:[]});
@@ -53,7 +57,7 @@ const login = async (req, res) => {
 const forgetPassword = async (req, res) => {
     try {
         const {email} = req.body;
-        const user = await Users.findOne({email});
+        const user = await Users.findOne({email, isDeleted: false});
 
         if (!user){
             return res.status(200).json({success:true, msg: "User not found",data:[]});

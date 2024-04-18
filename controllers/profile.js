@@ -5,8 +5,8 @@ const bcrypt = require("bcrypt");
 const changePassword = async (req, res) => {
     try {
 
-    const {email, oldPassword, newPassword} = req.body;
-    let user = await Users.findOne({email});
+    const { oldPassword, newPassword} = req.body;
+    let user = await Users.findById(req.user.id);
     if (!user){
         return res.status(404).json({message: "User not found"});
     }
@@ -41,7 +41,10 @@ const deleteMyAccount = async (req, res) => {
         if (!passwordMatch) {
             return res.status(401).json({ message: "Incorrect password. Please try again." });
         }
-        await Users.deleteOne({ _id: req.user.id });
+        user.isDeleted = true;
+        user.deletedBy = req.user.id;
+        user.deletedAt = new Date(Date.now());
+        await user.save();
         return res.status(200).json({ message: "Account deleted successfully" });
     } catch (error) {
         console.error(error);
