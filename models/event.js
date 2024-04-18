@@ -47,7 +47,7 @@ const eventSchema = new mongoose.Schema({
     type: Date,
     default: null,
   },
-  is_deleted:{
+  isDeleted:{
     type: Boolean,
     default: false,
   },
