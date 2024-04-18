@@ -25,10 +25,10 @@ const createEvent = async (req, res) => {
       updatedBy: req.user.name,
     });
 
-    res.status(201).send("Event created successfully");
+    res.status(201).json({success:true, msg: "Event created successfully",data:[]});
   } catch (error) {
     console.log(error);
-    res.status(500).send("An error occurred while creating the event");
+    res.status(500).json({success:false ,msg: "An error occurred while creating the event",data:[]});
   }
 };
 
@@ -36,9 +36,9 @@ const createEvent = async (req, res) => {
 const getEvents = async (req, res) => {
   try {
     const events = await Event.find();
-    res.status(200).json(events);
+    res.status(200).json({success:true, msg: "Events found" ,data:events});
   } catch (error) {
-    res.status(500).send("An error occurred while getting the events");
+    res.status(500).json({success:false ,msg: "An error occurred while getting the events",data:[]})
   }
 };
 
@@ -46,9 +46,9 @@ const getEvents = async (req, res) => {
 const getEvent = async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
-    res.status(200).json(event);
+    res.status(200).json({success:true, msg: "Event found",data:event});
   } catch (error) {
-    res.status(500).send("An error occurred while getting the event");
+    res.status(500).json({success:false ,msg: "An error occurred while getting the event",data:[]})
   }
 };
 
@@ -57,16 +57,16 @@ const deleteEvent = async (req, res) => {
   try {
     const event = await Event.findById(req.body.id);
     if (!event) {
-      return res.status(404).send("Event not found");
+      return res.status(200).json({success:true, msg: "Event not found",data:[]})
     }
     if (event.organizer == req.user.id) {
       event.is_deleted = true;
       event.deletedAt = new Date();
       event.deletedBy = req.user.name;
       await event.save();
-      res.status(200).send("Event deleted successfully");
+      res.status(200).json({success:true, msg: "Event deleted successfully",data:[]})
     } else {
-      res.status(401).send("You are not authorized to delete this event");
+      res.status(401).json({success:false, msg: "You are not authorized to delete this event",data:[]})
     }
   } catch (error) {
     res.status(500).send("An error occurred while deleting the event");
