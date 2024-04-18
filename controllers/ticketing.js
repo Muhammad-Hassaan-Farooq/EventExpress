@@ -8,23 +8,29 @@ const markAttending = async (req, res) => {
     const userID = {
       user: requserID,
     };
-    console.log(userID);
 
     let attendee = await Attendees.findOne({ eventID });
     let attendeesList = attendee.userID;
-    console.log(attendeesList);
+
     if (!attendee) {
       return res.status(500).json({ error: "An error occurred" });
     }
+    for (const user of attendeesList) {
+      if (user.user == requserID) {
+        return res.status(400).json({ message: "User already attending" });
+      }
+    }
+
     await Attendees.findOneAndUpdate(
       { eventID },
       { $push: { userID } },
       { runValidators: true }
     );
 
-    res.status(200).json({ message: "User marked as attending" });
+    return res.status(200).json({ message: "User marked as attending" });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.log(error);
+    return res.status(500).json({ error: error.message });
   }
 };
 
@@ -33,7 +39,10 @@ const removeAttending = async (req, res) => {
     const { eventID } = req.body;
     const userID = req.user.id;
 
-    await Attendees.findOneAndUpdate({ eventID }, { $pull: { userID } });
+    let attendee = await Attendees.findOneAndUpdate(
+      { eventID },
+      { $pull: { userID: { user: userID } } }
+    );
     res.status(200).json({ message: "User removed from attending" });
   } catch (error) {
     res.status(500).json({ error: error.message });
