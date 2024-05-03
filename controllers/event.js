@@ -43,7 +43,7 @@ const createEvent = async (req, res) => {
 // Get all events
 const getEvents = async (req, res) => {
   try {
-    const events = await Event.find();
+    const events = await Event.find({is_deleted : false});
     res.status(200).json(events);
   } catch (error) {
     res.status(500).send("An error occurred while getting the events");
@@ -53,7 +53,10 @@ const getEvents = async (req, res) => {
 // Get a single event by id
 const getEvent = async (req, res) => {
   try {
-    const event = await Event.findById(req.params.id);
+    const event = await Event.findById({_id: req.params.id});
+    if (event.is_deleted) {
+      return res.status(404).send("Event not found");
+    }
     res.status(200).json(event);
   } catch (error) {
     res.status(500).send("An error occurred while getting the event");
@@ -84,7 +87,7 @@ const deleteEvent = async (req, res) => {
 // View all the events made by the specific organizer
 const getMyEvents = async (req, res) => {
   try {
-    const events = await Event.find({ organizer: req.user.id});
+    const events = await Event.find({ organizer: req.user.id , is_deleted: false});
     res.status(200).json(events);
   } catch (error) {
     res.status(500).send("An error occurred while getting the events");
