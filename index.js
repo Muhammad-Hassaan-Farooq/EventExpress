@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require("cors");
 const app = express();
 const port = 3000;
 
@@ -9,13 +10,13 @@ const pagebuilderRouter = require("./routes/page-builder");
 const ticketingRouter = require("./routes/ticketing");
 const accountManagementRouter = require("./routes/accountManagement");
 
-
 const profileRouter = require("./routes/profile");
 
 const { verifyToken } = require("./middleware/verifyToken");
 const { checkAdmin } = require("./middleware/checkAdmin");
 
 app.use(express.json());
+app.use(cors());
 app.use("/auth", authRouter);
 app.use(verifyToken); // This is the middleware that checks for the token
 
