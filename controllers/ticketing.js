@@ -13,11 +13,15 @@ const markAttending = async (req, res) => {
     let attendeesList = attendee.userID;
 
     if (!attendee) {
-      return res.status(500).json({ error: "An error occurred" });
+      return res
+        .status(500)
+        .json({ success: true, message: "Event not found" });
     }
     for (const user of attendeesList) {
       if (user.user == requserID) {
-        return res.status(400).json({ message: "User already attending" });
+        return res
+          .status(400)
+          .json({ success: true, message: "Already attending" });
       }
     }
 
@@ -27,10 +31,10 @@ const markAttending = async (req, res) => {
       { runValidators: true }
     );
 
-    return res.status(200).json({ message: "User marked as attending" });
+    return res.status(200).json({ success: true, message: "Marked Attending" });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
@@ -43,9 +47,9 @@ const removeAttending = async (req, res) => {
       { eventID },
       { $pull: { userID: { user: userID } } }
     );
-    res.status(200).json({ message: "User removed from attending" });
+    res.status(200).json({ success: true, message: "Removed from attending" });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
@@ -57,10 +61,10 @@ const bookTicket = async (req, res) => {
     const ticket = await Ticket.create({ userID, eventID });
 
     if (ticket) {
-      return res.status(200).json({ message: "Ticket booked successfully" });
+      return res.status(200).json({ success: true, message: "Ticket booked" });
     }
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
@@ -69,9 +73,9 @@ const cancelTicket = async (req, res) => {
     const { id } = req.body;
 
     await Ticket.findOneAndUpdate({ _id: id }, { status: "cancelled" });
-    res.status(200).json({ message: "Ticket cancelled successfully" });
+    res.status(200).json({ success: true, message: "Ticket cancelled" });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
