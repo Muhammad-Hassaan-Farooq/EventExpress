@@ -87,9 +87,7 @@ const deleteEvent = async (req, res) => {
 const getMyEvents = async (req, res) => {
   try {
     const events = await Event.find(
-      { organizer: req.user.id },
-      { is_deleted: false }
-    );
+      { organizer: req.user.id , is_deleted: false });
     res.status(200).json({ success: true, data: events });
   } catch (error) {
     res.status(500).json({ success: false, message: "Server Error" });
@@ -112,23 +110,23 @@ const changeEventDetails = async (req, res) => {
       });
     }
 
-    if (title !== undefined) {
+    if (title !== "" && title !== undefined) {
       event.title = title;
     }
-    if (description !== undefined) {
+    if (description !== "" && description !== undefined) {
       event.description = description;
     }
-    if (date !== undefined) {
+    if (date !== "" && date !== undefined) {
       event.date = date;
     }
-    if (location !== undefined) {
+    if (location !== "" && location !== undefined) {
       event.location = location;
     }
-    if (price !== undefined) {
+    if (price !== "" && price !== undefined) {
       event.price = price;
     }
     event.updatedBy = req.user.name;
-    event.updatedAt = new Date();
+    event.updatedAt = Date.now();
 
     await event.save();
     res.status(200).json({ success: true, message: "Event details changed" });
