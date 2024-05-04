@@ -11,9 +11,9 @@ const createComponent = async (req, res) => {
       .findById(newComponent._id)
       .populate("elements");
 
-    res.send(comp);
+    res.status(200).json({ success: true, data: comp });
   } catch (error) {
-    res.status(500).send(error);
+    res.status(500).json({ success: false, message: error });
   }
 };
 
@@ -22,9 +22,9 @@ const createElement = async (req, res) => {
   try {
     const newElement = new element({ title, content });
     await newElement.save();
-    res.send(newElement);
+    res.status(200).json({ success: true, data: newElement });
   } catch (error) {
-    res.status(500).send(error);
+    res.status(500).send({ success: false, message: error });
   }
 };
 
@@ -38,9 +38,9 @@ const createPage = async (req, res) => {
       populate: { path: "elements" },
     });
 
-    res.send(pg);
+    res.status(200).json({ success: true, data: pg });
   } catch (error) {
-    res.send(error);
+    res.status(500).json({ success: false, message: error });
   }
 };
 
