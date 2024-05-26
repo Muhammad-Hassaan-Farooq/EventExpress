@@ -17,6 +17,23 @@ const getAllOrganizers = async (req, res) => {
   }
 };
 
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await Users.find({
+      role: "user",
+      isDeleted: false,
+    }).select("-password");
+    if (!users) {
+      return res
+        .status(400)
+        .json({ success: true, message: "No users found" });
+    }
+    return res.status(200).json({ success: true, data: users });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
 const deleteAccount = async (req, res) => {
   try {
     const { email } = req.body;
@@ -88,4 +105,4 @@ const changeRole = async (req, res) => {
   }
 };
 
-module.exports = { getAllOrganizers, deleteAccount, changeRole };
+module.exports = { getAllOrganizers, getAllUsers, deleteAccount, changeRole };
