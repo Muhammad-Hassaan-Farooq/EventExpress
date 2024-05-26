@@ -1,31 +1,48 @@
 const Users = require("../models/User");
 const bcrypt = require("bcrypt");
 
+
 const changePassword = async (req, res) => {
   try {
-    const { oldPassword, newPassword } = req.body;
-    let user = await Users.findById(req.user.id);
+    const { oldPassword, newPassword, confirmPassword } = req.body;
+    const user = await Users.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    const passwordCheck = await bcrypt.compare(oldPassword, user.password);
+
+    if (!passwordCheck) {
+      return res.status(400).json({ success: false, message: "Incorrect old password" });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ success: false, message: "Passwords do not match" });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 5);
+    await user.save();
+
+    return res.status(200).json({ success: true, message: "Password changed successfully" });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+
+const viewProfile = async (req, res) => {
+  try {
+    const user = await Users.findById(req.body.id);
     if (!user) {
       return res.status(404).json({ success: true, message: "User not found" });
     }
-
-    if (user) {
-      const passwordCheck = await bcrypt.compare(oldPassword, user.password);
-      if (passwordCheck) {
-        user.password = await bcrypt.hash(newPassword, 5);
-        await user.save();
-        return res
-          .status(200)
-          .json({ success: true, message: "Password changed successfully" });
-      }
-      return res
-        .status(400)
-        .json({ success: true, message: "Incorrect password" });
-    }
-  } catch (error) {
+    return res.status(200).json({ success: true, data: user });
+  }
+  catch (error) {
     res.status(500).json({ success: false, message: "Server Error" });
   }
-};
+}
 
 const deleteMyAccount = async (req, res) => {
   try {
@@ -64,4 +81,6 @@ const deleteMyAccount = async (req, res) => {
 module.exports = {
   changePassword,
   deleteMyAccount,
+  viewProfile
 };
+
