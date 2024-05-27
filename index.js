@@ -1,7 +1,6 @@
 const express = require("express");
 const cors = require("cors")
 const mongoose = require("mongoose");
-const cors = require("cors");
 const app = express();
 const port = 3000;
 
@@ -18,7 +17,6 @@ const { checkAdmin } = require("./middleware/checkAdmin");
 
 app.use(cors());
 app.use(express.json());
-app.use(cors());
 app.use("/auth", authRouter);
 app.use(verifyToken); // This is the middleware that checks for the token
 
