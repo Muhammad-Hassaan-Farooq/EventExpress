@@ -48,13 +48,13 @@ const deleteMyAccount = async (req, res) => {
   try {
     if (!req.body.password) {
       return res
-        .status(400)
-        .json({ success: true, message: "Please provide your password" });
+        .status(200)
+        .json({ success: false, message: "Please provide your password" });
     }
     const user = await Users.findById(req.user.id);
 
     if (!user) {
-      return res.status(404).json({ success: true, message: "User not found" });
+      return res.status(200).json({ success: false, message: "User not found" });
     }
 
     const passwordMatch = await bcrypt.compare(
@@ -64,8 +64,8 @@ const deleteMyAccount = async (req, res) => {
 
     if (!passwordMatch) {
       return res
-        .status(401)
-        .json({ success: true, message: "Incorrect password" });
+        .status(200)
+        .json({ success: false, message: "Incorrect password" });
     }
     user.isDeleted = true;
     user.deletedBy = req.user.id;
