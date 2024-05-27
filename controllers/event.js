@@ -5,15 +5,7 @@ const Attendees = require("../models/attendees");
 // Create a new event
 const createEvent = async (req, res) => {
   try {
-
-    let {
-      title,
-      description,
-      date,
-      location,
-      attendees,
-      price,
-    } = req.body;
+    let { title, description, date, location, attendees, price } = req.body;
 
     organizer = req.user.id;
     const newEvent = await Event.create({
@@ -30,33 +22,38 @@ const createEvent = async (req, res) => {
 
     if (!createAttendeeList(newEvent._id)) {
       newEvent.delete();
-      return res.status(500).send("An error occurred while creating the event");
+      return res.status(500).json({
+        success: false,
+        message: "An error occurred while creating the event",
+      });
     }
 
-    res.status(201).send("Event created successfully");
+    res
+      .status(201)
+      .json({ success: true, message: "Event created successfully" });
   } catch (error) {
     console.log(error);
-    res.status(500).send("An error occurred while creating the event");
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
 // Get all events
 const getEvents = async (req, res) => {
   try {
-    const events = await Event.find();
-    res.status(200).json(events);
+    const events = await Event.find({ is_deleted: false });
+    res.status(200).json({ success: true, data: events });
   } catch (error) {
-    res.status(500).send("An error occurred while getting the events");
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
 // Get a single event by id
 const getEvent = async (req, res) => {
   try {
-    const event = await Event.findById(req.params.id);
-    res.status(200).json(event);
+    const event = await Event.findById(req.params.id, { is_deleted: false });
+    res.status(200).json({ success: true, data: event });
   } catch (error) {
-    res.status(500).send("An error occurred while getting the event");
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
@@ -65,29 +62,35 @@ const deleteEvent = async (req, res) => {
   try {
     const event = await Event.findById(req.body.id);
     if (!event) {
-      return res.status(404).send("Event not found");
+      return res
+        .status(404)
+        .json({ success: true, message: "Event not found" });
     }
     if (event.organizer == req.user.id) {
       event.is_deleted = true;
       event.deletedAt = new Date();
       event.deletedBy = req.user.name;
       await event.save();
-      res.status(200).send("Event deleted successfully");
+      res.status(200).json({ success: true, message: "Event deleted" });
     } else {
-      res.status(401).send("You are not authorized to delete this event");
+      res.status(401).json({
+        success: true,
+        message: "You are not authorized to delete this event",
+      });
     }
   } catch (error) {
-    res.status(500).send("An error occurred while deleting the event");
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
 // View all the events made by the specific organizer
 const getMyEvents = async (req, res) => {
   try {
-    const events = await Event.find({ organizer: req.user.id});
-    res.status(200).json(events);
+    const events = await Event.find(
+      { organizer: req.user.id , is_deleted: false });
+    res.status(200).json({ success: true, data: events });
   } catch (error) {
-    res.status(500).send("An error occurred while getting the events");
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
@@ -96,37 +99,40 @@ const changeEventDetails = async (req, res) => {
     const { title, description, date, location, price } = req.body;
     let event = await Event.findOne({ _id: req.body.id });
     if (!event) {
-      return res.status(404).send("Event not found");
+      return res
+        .status(404)
+        .json({ success: true, message: "Event not found" });
     }
     if (event.organizer != req.user.id) {
-      return res.status(401).send("You are not authorized to change this event details");
+      return res.status(401).json({
+        success: true,
+        message: "You are not authorized to change this event",
+      });
     }
-    
-    if (title !== undefined) {
+
+    if (title !== "" && title !== undefined) {
       event.title = title;
     }
-    if (description !== undefined) {
+    if (description !== "" && description !== undefined) {
       event.description = description;
     }
-    if (date !== undefined) {
+    if (date !== "" && date !== undefined) {
       event.date = date;
     }
-    if (location !== undefined) {
+    if (location !== "" && location !== undefined) {
       event.location = location;
     }
-    if (price !== undefined) {
+    if (price !== "" && price !== undefined) {
       event.price = price;
     }
     event.updatedBy = req.user.name;
-    event.updatedAt = new Date();
+    event.updatedAt = Date.now();
 
     await event.save();
-    res.status(200).json({ message: "Event details changed successfully" });
+    res.status(200).json({ success: true, message: "Event details changed" });
   } catch (error) {
     console.log(error);
-    res
-      .status(500)
-      .json({ message: "An error occurred while changing the event details" });
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
@@ -144,12 +150,14 @@ const searchByDate = async (req, res) => {
     });
 
     if (events.length === 0) {
-      return res.status(404).send("No events found on the entered date");
+      return res
+        .status(404)
+        .json({ success: true, message: "No events found" });
     }
 
-    res.status(200).json(events);
+    res.status(200).json({ success: true, data: events });
   } catch (error) {
-    res.status(500).send("An error occurred while getting the events");
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
@@ -158,11 +166,13 @@ const searchByLocation = async (req, res) => {
     const location = req.body.location;
     const events = await Event.find({ location });
     if (events.length === 0) {
-      return res.status(404).send("No events found in the entered location");
+      return res
+        .status(404)
+        .json({ success: true, message: "No events found" });
     }
-    res.status(200).json(events);
+    res.status(200).json({ success: true, data: events });
   } catch (error) {
-    res.status(500).send("An error occurred while getting the events");
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
@@ -171,11 +181,13 @@ const searchByOrganizer = async (req, res) => {
     const id = req.body.org_id;
     const events = await Event.find({ organizer: id });
     if (events.length === 0) {
-      return res.status(404).send("No events found by the entered organizer");
+      return res
+        .status(404)
+        .json({ success: true, message: "No events found" });
     }
-    res.status(200).json(events);
+    res.status(200).json({ success: true, data: events });
   } catch (error) {
-    res.status(500).send("An error occurred while getting the events");
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
@@ -188,11 +200,11 @@ const searchByPrice = async (req, res) => {
     if (events.length === 0) {
       return res
         .status(404)
-        .send("No events found within the specified price range");
+        .json({ success: true, message: "No events found" });
     }
-    res.status(200).json(events);
+    res.status(200).json({ success: true, data: events });
   } catch (error) {
-    res.status(500).send("An error occurred while getting the events");
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
@@ -217,6 +229,5 @@ module.exports = {
   searchByLocation,
   searchByOrganizer,
 
-  searchByPrice
-
+  searchByPrice,
 };

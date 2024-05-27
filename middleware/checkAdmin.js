@@ -1,13 +1,16 @@
-const checkAdmin = async(req, res, next) => {
-    const userRole = req.user.role;
+const checkAdmin = async (req, res, next) => {
+  const userRole = req.user.role;
 
-    if (userRole === 'admin'){
-       next();
-    }
-    else {
-        return res.status(400).json({ message: 'Unauthorized Access (Only admins allowed)' });
+  if (userRole === "admin") {
+    next();
+  } else {
+    return res
+      .status(400)
+      .json({
+        success: false,
+        message: "You are not authorized to perform this action",
+      });
+  }
+};
 
-    }
-}
-
-module.exports = {checkAdmin};
+module.exports = { checkAdmin };

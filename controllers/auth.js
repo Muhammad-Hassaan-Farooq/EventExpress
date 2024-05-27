@@ -9,21 +9,24 @@ const signUp = async (req, res) => {
     let user = await Users.findOne({ email });
 
     if (user) {
-      return res.status(400).json({ message: "User already exists" });
+      return res
+        .status(409)
+        .json({ success: true, message: "User already exists" });
     }
     if (password.length < 8) {
-      return res
-        .status(400)
-        .json({ message: "Password must be at least 6 characters" });
+      return res.status(400).json({
+        success: true,
+        message: "Password must be at least 8 characters long",
+      });
     }
 
     await Users.create({
       ...req.body,
       password: await bcrypt.hash(password, 5),
     });
-    return res.status(201).json({ message: "User created" });
+    return res.status(201).json({ success: true, message: "User created" });
   } catch (error) {
-    res.status(500).json({ message: "An error occurred while signing up" });
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
@@ -31,11 +34,14 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await Users.findOne({ email, isDeleted: false });
-    if (!user) return res.status(400).json({ message: "User not found" });
+    if (!user)
+      return res.status(404).json({ success: true, message: "User not found" });
 
     const passwordCheck = await bcrypt.compare(password, user.password);
     if (!passwordCheck)
-      return res.status(400).json({ message: "Invalid password" });
+      return res
+        .status(400)
+        .json({ success: true, message: "Invalid password" });
 
     const token = jwt.sign(
       {
@@ -48,11 +54,12 @@ const login = async (req, res) => {
       { expiresIn: "1d" }
     );
     res.json({
-      msg: "LOGGED IN",
+      success: true,
+      message: "LOGGED IN",
       token,
     });
   } catch (error) {
-    res.status(500).json({ message: "An error occurred while logging in" });
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
@@ -62,7 +69,7 @@ const forgetPassword = async (req, res) => {
     const user = await Users.findOne({ email, isDeleted: false });
 
     if (!user) {
-      return res.status(200).json({ message: "User not found" });
+      return res.status(404).json({ success: true, message: "User not found" });
     }
 
     const newPassword = Math.random().toString(36).slice(-8);
@@ -70,12 +77,14 @@ const forgetPassword = async (req, res) => {
     await user.save();
 
     await sendEmail(email, newPassword);
-    res.status(200).json({ message: "New password sent to your email" });
+    res
+      .status(200)
+      .json({ success: true, message: "Email sent for password reset" });
   } catch (error) {
     console.log(error);
     res
       .status(500)
-      .json({ message: "An error occurred while forgetting password" });
+      .json({ success: false, message: "Server Error: Email not sent" });
   }
 };
 
