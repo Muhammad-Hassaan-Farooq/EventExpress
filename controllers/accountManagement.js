@@ -8,14 +8,48 @@ const getAllOrganizers = async (req, res) => {
     }).select("-password");
     if (!organizers) {
       return res
-        .status(400)
-        .json({ success: true, message: "No organizers found" });
+        .status(200)
+        .json({ success: false, message: "No organizers found" });
     }
-    return res.status(200).json({ success: true, data: organizers });
+    return res.status(200).json({ success: true, data: organizers, message: "Organizers fetched successfully" });
   } catch (err) {
     return res.status(500).json({ success: false, message: "Server Error" });
   }
 };
+
+const getOrganizerByName = async (req, res) => {
+  const fullName = req.body.name.trim();
+  const names = fullName.split(' ');
+  const firstName = names[0];
+  const lastName = names.slice(1).join(' ');
+
+  try {
+    const searchCriteria = {
+      role: "organizer",
+      isDeleted: false,
+      $or: [
+        { firstName: { $regex: new RegExp('^' + firstName + '$', 'i') } },
+        { 
+          $and: [
+            { firstName: { $regex: new RegExp('^' + firstName + '$', 'i') } },
+            { lastName: { $regex: new RegExp('^' + lastName + '$', 'i') } }
+          ]
+        }
+      ]
+    };
+
+    const organizers = await Users.find(searchCriteria).select("-password");
+
+    if (organizers.length === 0) {
+      return res
+        .status(200)
+        .json({ success: false, message: "No organizer found with this name" });
+    }
+    return res.status(200).json({ success: true, data: organizers, message: "Organizer fetched successfully" });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: "Server Error" });
+  }
+}
 
 const getAllUsers = async (req, res) => {
   try {
@@ -25,14 +59,48 @@ const getAllUsers = async (req, res) => {
     }).select("-password");
     if (!users) {
       return res
-        .status(400)
-        .json({ success: true, message: "No users found" });
+        .status(200)
+        .json({ success: false, message: "No users found" });
     }
-    return res.status(200).json({ success: true, data: users });
+    return res.status(200).json({ success: true, data: users, message: "Users fetched successfully"});
   } catch (err) {
     return res.status(500).json({ success: false, message: "Server Error" });
   }
 };
+
+const getUserByName = async (req, res) => {
+  const fullName = req.body.name.trim();
+  const names = fullName.split(' ');
+  const firstName = names[0];
+  const lastName = names.slice(1).join(' ');
+
+  try {
+    const searchCriteria = {
+      role: "user",
+      isDeleted: false,
+      $or: [
+        { firstName: { $regex: new RegExp('^' + firstName + '$', 'i') } },
+        { 
+          $and: [
+            { firstName: { $regex: new RegExp('^' + firstName + '$', 'i') } },
+            { lastName: { $regex: new RegExp('^' + lastName + '$', 'i') } }
+          ]
+        }
+      ]
+    };
+
+    const users = await Users.find(searchCriteria).select("-password");
+
+    if (users.length === 0) {
+      return res
+        .status(200)
+        .json({ success: false, message: "No user found with this name" });
+    }
+    return res.status(200).json({ success: true, data: users, message: "User fetched successfully" });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: "Server Error" });
+  }
+}
 
 const deleteAccount = async (req, res) => {
   try {
@@ -105,4 +173,4 @@ const changeRole = async (req, res) => {
   }
 };
 
-module.exports = { getAllOrganizers, getAllUsers, deleteAccount, changeRole };
+module.exports = { getAllOrganizers, getAllUsers, deleteAccount, changeRole, getOrganizerByName, getUserByName };
