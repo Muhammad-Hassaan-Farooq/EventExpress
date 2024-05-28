@@ -50,7 +50,7 @@ const getEvents = async (req, res) => {
 // Get a single event by id
 const getEvent = async (req, res) => {
   try {
-    const event = await Event.find({organizer: req.user.id}, { isDeleted: false });
+    const event = await Event.find({organizer: req.user.id} && { isDeleted: false });
     res.status(200).json({ success: true, data: event });
   } catch (error) {
     res.status(500).json({ success: false, message: "Server Error" });
@@ -61,17 +61,17 @@ const getEvent = async (req, res) => {
 const deleteEvent = async (req, res) => {
   try {
     id = req.body.id;
-    const event = await Event.findById( {
+    const event = await Event.findById( 
       id, 
-      isDeleted: false
-    });
+      {isDeleted: false}
+    );
     if (!event) {
       return res
         .status(404)
         .json({ success: true, message: "Event not found" });
     }
     if (event.organizer == req.user.id) {
-      event.is_deleted = true;
+      event.isDeleted = true;
       event.deletedAt = new Date();
       event.deletedBy = req.user.name;
       await event.save();
