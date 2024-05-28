@@ -100,9 +100,10 @@ const getMyEvents = async (req, res) => {
 
 const changeEventDetails = async (req, res) => {
   try {
-    const { title, description, date, location, price } = req.body;
+    const { title, description, date, location, price, id } = req.body;
+    console.log(id);
     let event = await Event.findOne({
-       _id: req.body.id,
+        _id: id,
         isDeleted: false
       });
     if (!event) {
@@ -139,6 +140,21 @@ const changeEventDetails = async (req, res) => {
     res.status(200).json({ success: true, message: "Event details changed" });
   } catch (error) {
     console.log(error);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+const searchById = async (req, res) => {
+  try {
+    const id = req.body.id;
+    const event = await Event.findById(id, { isDeleted: false });
+    if (!event) {
+      return res
+        .status(404)
+        .json({ success: true, message: "No events found" });
+    }
+    res.status(200).json({ success: true, data: event });
+  } catch (error) {
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
@@ -243,6 +259,6 @@ module.exports = {
   searchByDate,
   searchByLocation,
   searchByOrganizer,
-
+  searchById,
   searchByPrice,
 };
