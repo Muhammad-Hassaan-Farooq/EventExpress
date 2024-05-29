@@ -259,6 +259,8 @@ module.exports = {
   searchByDate,
   searchByLocation,
   searchByOrganizer,
+
   searchById,
+
   searchByPrice,
 };
