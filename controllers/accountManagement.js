@@ -6,7 +6,7 @@ const getAllOrganizers = async (req, res) => {
       role: "organizer",
       isDeleted: false,
     }).select("-password");
-    if (!organizers) {
+    if (organizers.length === 0) {
       return res
         .status(200)
         .json({ success: false, message: "No organizers found" });
@@ -57,7 +57,7 @@ const getAllUsers = async (req, res) => {
       role: "user",
       isDeleted: false,
     }).select("-password");
-    if (!users) {
+    if (users.length === 0) {
       return res
         .status(200)
         .json({ success: false, message: "No users found" });
@@ -156,7 +156,7 @@ const changeRole = async (req, res) => {
       if (role === "superAdmin" || role === "admin")
         return res.status(401).json({
           success: true,
-          message: "You can only change the role to admin or superadmin",
+          message: "You can only change the role from user to organizer or organizer to user."
         });
       user.role = role;
       user.updatedBy = req.user.id;
