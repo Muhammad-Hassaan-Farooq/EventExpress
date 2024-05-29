@@ -40,7 +40,7 @@ const createEvent = async (req, res) => {
 // Get all events
 const getEvents = async (req, res) => {
   try {
-    const events = await Event.find({ is_deleted: false });
+    const events = await Event.find({ isDeleted: false });
     res.status(200).json({ success: true, data: events });
   } catch (error) {
     res.status(500).json({ success: false, message: "Server Error" });
@@ -50,7 +50,7 @@ const getEvents = async (req, res) => {
 // Get a single event by id
 const getEvent = async (req, res) => {
   try {
-    const event = await Event.findById(req.params.id, { is_deleted: false });
+    const event = await Event.find({organizer: req.user.id} && { isDeleted: false });
     res.status(200).json({ success: true, data: event });
   } catch (error) {
     res.status(500).json({ success: false, message: "Server Error" });
@@ -60,14 +60,18 @@ const getEvent = async (req, res) => {
 // Delete an event if you are the organizer of that particular event
 const deleteEvent = async (req, res) => {
   try {
-    const event = await Event.findById(req.body.id);
+    id = req.body.id;
+    const event = await Event.findById( 
+      id, 
+      {isDeleted: false}
+    );
     if (!event) {
       return res
         .status(404)
         .json({ success: true, message: "Event not found" });
     }
     if (event.organizer == req.user.id) {
-      event.is_deleted = true;
+      event.isDeleted = true;
       event.deletedAt = new Date();
       event.deletedBy = req.user.name;
       await event.save();
@@ -96,8 +100,12 @@ const getMyEvents = async (req, res) => {
 
 const changeEventDetails = async (req, res) => {
   try {
-    const { title, description, date, location, price } = req.body;
-    let event = await Event.findOne({ _id: req.body.id });
+    const { title, description, date, location, price, id } = req.body;
+    console.log(id);
+    let event = await Event.findOne({
+        _id: id,
+        isDeleted: false
+      });
     if (!event) {
       return res
         .status(404)
@@ -136,6 +144,21 @@ const changeEventDetails = async (req, res) => {
   }
 };
 
+const searchById = async (req, res) => {
+  try {
+    const id = req.body.id;
+    const event = await Event.findById(id, { isDeleted: false });
+    if (!event) {
+      return res
+        .status(404)
+        .json({ success: true, message: "No events found" });
+    }
+    res.status(200).json({ success: true, data: event });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
 const searchByDate = async (req, res) => {
   try {
     const date = req.body.date;
@@ -144,6 +167,7 @@ const searchByDate = async (req, res) => {
 
     const events = await Event.find({
       date: {
+        isDeleted: false,
         $gte: formattedDate + "T00:00:00.000Z",
         $lt: formattedDate + "T23:59:59.999Z",
       },
@@ -164,7 +188,10 @@ const searchByDate = async (req, res) => {
 const searchByLocation = async (req, res) => {
   try {
     const location = req.body.location;
-    const events = await Event.find({ location });
+    const events = await Event.find({ 
+      location, 
+      isDeleted: false
+    });
     if (events.length === 0) {
       return res
         .status(404)
@@ -179,7 +206,10 @@ const searchByLocation = async (req, res) => {
 const searchByOrganizer = async (req, res) => {
   try {
     const id = req.body.org_id;
-    const events = await Event.find({ organizer: id });
+    const events = await Event.find({ 
+      organizer: id, 
+      isDeleted: false
+    });
     if (events.length === 0) {
       return res
         .status(404)
@@ -195,6 +225,7 @@ const searchByPrice = async (req, res) => {
   try {
     const { minPrice, maxPrice } = req.body;
     const events = await Event.find({
+      isDeleted: false,
       price: { $gte: minPrice, $lte: maxPrice },
     });
     if (events.length === 0) {
@@ -228,5 +259,8 @@ module.exports = {
   searchByDate,
   searchByLocation,
   searchByOrganizer,
+
+  searchById,
+
   searchByPrice,
 };

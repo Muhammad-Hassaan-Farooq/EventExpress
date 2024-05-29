@@ -10,7 +10,12 @@ const eventSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  date: {
+  startDate: {
+    type: Date,
+    required: true,
+    default: Date.now
+  },
+  endDate: {
     type: Date,
     required: true,
     default: Date.now
@@ -42,7 +47,7 @@ const eventSchema = new mongoose.Schema({
     type: Date,
     default: null,
   },
-  is_deleted:{
+  isDeleted:{
     type: Boolean,
     default: false,
   },

@@ -51,22 +51,26 @@ const getOrganizerByName = async (req, res) => {
   }
 }
 
+
 const getAllUsers = async (req, res) => {
   try {
     const users = await Users.find({
       role: "user",
       isDeleted: false,
     }).select("-password");
+
     if (users.length === 0) {
       return res
         .status(200)
         .json({ success: false, message: "No users found" });
     }
     return res.status(200).json({ success: true, data: users, message: "Users fetched successfully"});
+
   } catch (err) {
     return res.status(500).json({ success: false, message: "Server Error" });
   }
 };
+
 
 const getUserByName = async (req, res) => {
   const fullName = req.body.name.trim();
@@ -101,6 +105,7 @@ const getUserByName = async (req, res) => {
     return res.status(500).json({ success: false, message: "Server Error" });
   }
 }
+
 
 const deleteAccount = async (req, res) => {
   try {
@@ -173,4 +178,6 @@ const changeRole = async (req, res) => {
   }
 };
 
+
 module.exports = { getAllOrganizers, getAllUsers, deleteAccount, changeRole, getOrganizerByName, getUserByName };
+

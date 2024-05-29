@@ -6,6 +6,10 @@ const jwt = require("jsonwebtoken");
 const signUp = async (req, res) => {
   try {
     const { email, password } = req.body;
+    if (!email.match(/^\S+@\S+\.\S+$/))
+      return res
+        .status(200)
+        .json({ success: true, msg: "Invalid Email format", data: [] }); // Check the email format
     let user = await Users.findOne({ email });
 
     if (user) {
@@ -57,6 +61,7 @@ const login = async (req, res) => {
       success: true,
       message: "LOGGED IN",
       token,
+      role: user.role,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: "Server Error" });

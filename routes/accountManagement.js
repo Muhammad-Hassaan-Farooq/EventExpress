@@ -1,4 +1,5 @@
 const router = require('express').Router();
+
 const {getAllOrganizers,getAllUsers,deleteAccount,changeRole,getOrganizerByName, getUserByName} = require('../controllers/accountManagement');
 
 
