@@ -1,6 +1,7 @@
 const Event = require("../models/event");
 const Users = require("../models/User");
 const Attendees = require("../models/attendees");
+const { get } = require("mongoose");
 
 // Create a new event
 const createEvent = async (req, res) => {
@@ -50,7 +51,7 @@ const getEvents = async (req, res) => {
 // Get a single event by id
 const getEvent = async (req, res) => {
   try {
-    const event = await Event.find({organizer: req.user.id} && { isDeleted: false });
+    const event = await Event.find({ organizer: req.user.id , isDeleted: false });
     res.status(200).json({ success: true, data: event });
   } catch (error) {
     res.status(500).json({ success: false, message: "Server Error" });
@@ -189,7 +190,7 @@ const searchByLocation = async (req, res) => {
   try {
     const location = req.body.location;
     const events = await Event.find({ 
-      location, 
+      location: { $regex: location, $options: 'i' } , 
       isDeleted: false
     });
     if (events.length === 0) {
@@ -221,12 +222,65 @@ const searchByOrganizer = async (req, res) => {
   }
 };
 
+const searchByName = async (req, res) => {
+  try {
+    const name = req.body.name;
+    const events = await Event.find({ 
+      title: { $regex: name, $options: 'i' }, 
+      isDeleted: false
+    });
+    if (events.length === 0) {
+      return res
+        .status(404)
+        .json({ success: true, message: "No events found" });
+    }
+    res.status(200).json({ success: true, data: events });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+
+}
+
+const getOrganizerByName = async (req, res) => {
+  const fullName = req.body.name.trim();
+  const names = fullName.split(' ');
+  const firstName = names[0];
+  const lastName = names.slice(1).join(' ');
+
+  try {
+    const searchCriteria = {
+      role: "organizer",
+      isDeleted: false,
+      $or: [
+        { firstName: { $regex: new RegExp('^' + firstName + '$', 'i') } },
+        { 
+          $and: [
+            { firstName: { $regex: new RegExp('^' + firstName + '$', 'i') } },
+            { lastName: { $regex: new RegExp('^' + lastName + '$', 'i') } }
+          ]
+        }
+      ]
+    };
+
+    const organizers = await Users.find(searchCriteria).select("-password");
+
+    if (organizers.length === 0) {
+      return res
+        .status(200)
+        .json({ success: false, message: "No organizer found with this name" });
+    }
+    return res.status(200).json({ success: true, data: organizers, message: "Organizer fetched successfully" });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: "Server Error" });
+  }
+}
+
 const searchByPrice = async (req, res) => {
   try {
-    const { minPrice, maxPrice } = req.body;
+    const {  price } = req.body;
     const events = await Event.find({
       isDeleted: false,
-      price: { $gte: minPrice, $lte: maxPrice },
+      price: { $lte: price },
     });
     if (events.length === 0) {
       return res
@@ -259,8 +313,9 @@ module.exports = {
   searchByDate,
   searchByLocation,
   searchByOrganizer,
-
+  searchByName,
   searchById,
 
   searchByPrice,
+  getOrganizerByName
 };
