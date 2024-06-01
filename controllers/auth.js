@@ -74,7 +74,7 @@ const forgetPassword = async (req, res) => {
     const user = await Users.findOne({ email, isDeleted: false });
 
     if (!user) {
-      return res.status(404).json({ success: true, message: "User not found" });
+      return res.status(200).json({ success: false, message: "User not found" });
     }
 
     const newPassword = Math.random().toString(36).slice(-8);
