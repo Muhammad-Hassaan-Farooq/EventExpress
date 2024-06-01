@@ -12,7 +12,7 @@ const createEvent = async (req, res) => {
     const newEvent = await Event.create({
       title,
       description,
-      date: new Date(date),
+      startDate: new Date(date),
       location,
       organizer,
       attendees,
@@ -51,7 +51,10 @@ const getEvents = async (req, res) => {
 // Get a single event by id
 const getEvent = async (req, res) => {
   try {
-    const event = await Event.find({ organizer: req.user.id , isDeleted: false });
+    const event = await Event.find({
+      organizer: req.user.id,
+      isDeleted: false,
+    });
     res.status(200).json({ success: true, data: event });
   } catch (error) {
     res.status(500).json({ success: false, message: "Server Error" });
@@ -62,10 +65,7 @@ const getEvent = async (req, res) => {
 const deleteEvent = async (req, res) => {
   try {
     id = req.body.id;
-    const event = await Event.findById( 
-      id, 
-      {isDeleted: false}
-    );
+    const event = await Event.findById(id, { isDeleted: false });
     if (!event) {
       return res
         .status(404)
@@ -91,8 +91,10 @@ const deleteEvent = async (req, res) => {
 // View all the events made by the specific organizer
 const getMyEvents = async (req, res) => {
   try {
-    const events = await Event.find(
-      { organizer: req.user.id , is_deleted: false });
+    const events = await Event.find({
+      organizer: req.user.id,
+      is_deleted: false,
+    });
     res.status(200).json({ success: true, data: events });
   } catch (error) {
     res.status(500).json({ success: false, message: "Server Error" });
@@ -104,9 +106,9 @@ const changeEventDetails = async (req, res) => {
     const { title, description, date, location, price, id } = req.body;
     console.log(id);
     let event = await Event.findOne({
-        _id: id,
-        isDeleted: false
-      });
+      _id: id,
+      isDeleted: false,
+    });
     if (!event) {
       return res
         .status(404)
@@ -189,9 +191,9 @@ const searchByDate = async (req, res) => {
 const searchByLocation = async (req, res) => {
   try {
     const location = req.body.location;
-    const events = await Event.find({ 
-      location: { $regex: location, $options: 'i' } , 
-      isDeleted: false
+    const events = await Event.find({
+      location: { $regex: location, $options: "i" },
+      isDeleted: false,
     });
     if (events.length === 0) {
       return res
@@ -207,9 +209,9 @@ const searchByLocation = async (req, res) => {
 const searchByOrganizer = async (req, res) => {
   try {
     const id = req.body.org_id;
-    const events = await Event.find({ 
-      organizer: id, 
-      isDeleted: false
+    const events = await Event.find({
+      organizer: id,
+      isDeleted: false,
     });
     if (events.length === 0) {
       return res
@@ -225,9 +227,9 @@ const searchByOrganizer = async (req, res) => {
 const searchByName = async (req, res) => {
   try {
     const name = req.body.name;
-    const events = await Event.find({ 
-      title: { $regex: name, $options: 'i' }, 
-      isDeleted: false
+    const events = await Event.find({
+      title: { $regex: name, $options: "i" },
+      isDeleted: false,
     });
     if (events.length === 0) {
       return res
@@ -238,28 +240,27 @@ const searchByName = async (req, res) => {
   } catch (error) {
     res.status(500).json({ success: false, message: "Server Error" });
   }
-
-}
+};
 
 const getOrganizerByName = async (req, res) => {
   const fullName = req.body.name.trim();
-  const names = fullName.split(' ');
+  const names = fullName.split(" ");
   const firstName = names[0];
-  const lastName = names.slice(1).join(' ');
+  const lastName = names.slice(1).join(" ");
 
   try {
     const searchCriteria = {
       role: "organizer",
       isDeleted: false,
       $or: [
-        { firstName: { $regex: new RegExp('^' + firstName + '$', 'i') } },
-        { 
+        { firstName: { $regex: new RegExp("^" + firstName + "$", "i") } },
+        {
           $and: [
-            { firstName: { $regex: new RegExp('^' + firstName + '$', 'i') } },
-            { lastName: { $regex: new RegExp('^' + lastName + '$', 'i') } }
-          ]
-        }
-      ]
+            { firstName: { $regex: new RegExp("^" + firstName + "$", "i") } },
+            { lastName: { $regex: new RegExp("^" + lastName + "$", "i") } },
+          ],
+        },
+      ],
     };
 
     const organizers = await Users.find(searchCriteria).select("-password");
@@ -269,15 +270,21 @@ const getOrganizerByName = async (req, res) => {
         .status(200)
         .json({ success: false, message: "No organizer found with this name" });
     }
-    return res.status(200).json({ success: true, data: organizers, message: "Organizer fetched successfully" });
+    return res
+      .status(200)
+      .json({
+        success: true,
+        data: organizers,
+        message: "Organizer fetched successfully",
+      });
   } catch (err) {
     return res.status(500).json({ success: false, message: "Server Error" });
   }
-}
+};
 
 const searchByPrice = async (req, res) => {
   try {
-    const {  price } = req.body;
+    const { price } = req.body;
     const events = await Event.find({
       isDeleted: false,
       price: { $lte: price },
@@ -317,5 +324,5 @@ module.exports = {
   searchById,
 
   searchByPrice,
-  getOrganizerByName
+  getOrganizerByName,
 };
