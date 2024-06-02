@@ -165,12 +165,14 @@ const searchById = async (req, res) => {
 const searchByDate = async (req, res) => {
   try {
     const date = req.body.date;
+    
     const startDate = new Date(date);
+    console.log(startDate);
     const formattedDate = startDate.toISOString().split("T")[0];
-
+    console.log(formattedDate);
     const events = await Event.find({
-      date: {
-        isDeleted: false,
+      isDeleted: false,
+      startDate: {
         $gte: formattedDate + "T00:00:00.000Z",
         $lt: formattedDate + "T23:59:59.999Z",
       },
