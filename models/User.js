@@ -11,6 +11,10 @@ const UserSchema = new mongoose.Schema({
     firstName: { type: String,required: true},
     lastName: { type: String ,required: true},
     role: { type: String, enum: userRoles, required: true },
+    events: [{
+        type: schema.Types.ObjectId,
+        ref: "Event",
+    }],
     createdAt: {
         type: Date,
         default: Date.now
