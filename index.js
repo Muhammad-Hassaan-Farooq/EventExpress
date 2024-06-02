@@ -1,5 +1,5 @@
 const express = require("express");
-const cors = require("cors")
+const cors = require("cors");
 const mongoose = require("mongoose");
 const app = express();
 const port = 3000;
@@ -9,6 +9,7 @@ const eventRouter = require("./routes/event");
 const pagebuilderRouter = require("./routes/page-builder");
 const ticketingRouter = require("./routes/ticketing");
 const accountManagementRouter = require("./routes/accountManagement");
+const eventPageRouter = require("./routes/eventPage");
 
 const profileRouter = require("./routes/profile");
 
@@ -19,7 +20,7 @@ app.use(cors());
 app.use(express.json());
 app.use("/auth", authRouter);
 app.use(verifyToken); // This is the middleware that checks for the token
-
+app.use("/eventPage", eventPageRouter);
 app.use("/event", eventRouter);
 app.use("/profile", profileRouter);
 app.use("/ticketing", ticketingRouter);
