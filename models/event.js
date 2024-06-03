@@ -31,6 +31,18 @@ const eventSchema = new mongoose.Schema({
     type: [String], // Assuming attendees are represented by their usernames or IDs
     default: [],
   },
+  attendeesLimit: {
+    type: Number,
+    default: 100,
+  },
+  attendeesCount: {
+    type: Number,
+    default: 0,
+  },
+  isFull: {
+    type: Boolean,
+    default: false,
+  },
   price: {
     type: Number,
     required: true,
