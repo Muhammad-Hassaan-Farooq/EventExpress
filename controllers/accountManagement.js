@@ -178,6 +178,23 @@ const changeRole = async (req, res) => {
   }
 };
 
+const countOrganizers = async(req,res) => {
+    try {
+        const organizers = await Users.find({role: "organizer", isDeleted: false}).countDocuments();
+        return res.status(200).json({success: true, data: organizers});
+    } catch (error) {
+        return res.status(500).json({success: false, message: "Server Error"});
+    }
+}
 
-module.exports = { getAllOrganizers, getAllUsers, deleteAccount, changeRole, getOrganizerByName, getUserByName };
+const countUsers = async(req,res) => {
+    try {
+        const users = await Users.find({role: "user", isDeleted: false}).countDocuments();
+        return res.status(200).json({success: true, data: users});
+    } catch (error) {
+        return res.status(500).json({success: false, message: "Server Error"});
+    }
+}
+
+module.exports = { getAllOrganizers, getAllUsers, deleteAccount, changeRole, getOrganizerByName, getUserByName, countOrganizers, countUsers };
 
