@@ -6,7 +6,8 @@ const { get } = require("mongoose");
 // Create a new event
 const createEvent = async (req, res) => {
   try {
-    let { title, description, date, location, price, attendeesLimit } = req.body;
+    let { title, description, date, location, price, attendeesLimit } =
+      req.body;
 
     organizer = req.user.id;
     const newEvent = await Event.create({
@@ -22,7 +23,11 @@ const createEvent = async (req, res) => {
     });
     res
       .status(201)
-      .json({ success: true, message: "Event created successfully" });
+      .json({
+        success: true,
+        message: "Event created successfully",
+        data: newEvent,
+      });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Server Error" });
@@ -32,7 +37,11 @@ const createEvent = async (req, res) => {
 // Get all current events that are not full for user
 const getEvents = async (req, res) => {
   try {
-    const events = await Event.find({ isDeleted: false, startDate: { $gte: Date.now() }, isFull: false})
+    const events = await Event.find({
+      isDeleted: false,
+      startDate: { $gte: Date.now() },
+      isFull: false,
+    });
     res.status(200).json({ success: true, data: events });
   } catch (error) {
     res.status(500).json({ success: false, message: "Server Error" });
@@ -65,8 +74,6 @@ const getEvent = async (req, res) => {
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
-
-
 
 // Delete an event if you are the organizer of that particular event
 const deleteEvent = async (req, res) => {
@@ -121,24 +128,32 @@ const getMyEvents = async (req, res) => {
 };
 
 const getAllMyEvents = async (req, res) => {
-    try {
-      const events = await Users.findById(req.user.id).populate("attendingEvents");
-      if (!events) {
-        return res
-          .status(200)
-          .json({ success: false, message: "No events found" });
-      }
-      else {
-        res.status(200).json({ success: true, data: events, message: "Events fetched successfully"});
-      }
-    } catch (error) {
-      res.status(500).json({ success: false, message: "Server Error" });
+  try {
+    const events = await Users.findById(req.user.id).populate(
+      "attendingEvents"
+    );
+    if (!events) {
+      return res
+        .status(200)
+        .json({ success: false, message: "No events found" });
+    } else {
+      res
+        .status(200)
+        .json({
+          success: true,
+          data: events,
+          message: "Events fetched successfully",
+        });
     }
-}
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
 
 const changeEventDetails = async (req, res) => {
   try {
-    const { title, description, date, location, price, id, attendeesLimit } = req.body;
+    const { title, description, date, location, price, id, attendeesLimit } =
+      req.body;
     let event = await Event.findOne({
       _id: id,
       isDeleted: false,
@@ -187,7 +202,7 @@ const changeEventDetails = async (req, res) => {
 const searchById = async (req, res) => {
   try {
     const id = req.body.id;
-    const event = await Event.findById(id, { isDeleted: false});
+    const event = await Event.findById(id, { isDeleted: false });
     if (!event) {
       return res
         .status(404)
@@ -202,7 +217,7 @@ const searchById = async (req, res) => {
 const searchByDate = async (req, res) => {
   try {
     const date = req.body.date;
-    
+
     const startDate = new Date(date);
     console.log(startDate);
     const formattedDate = startDate.toISOString().split("T")[0];
@@ -298,7 +313,7 @@ const getOrganizerByName = async (req, res) => {
     const searchCriteria = {
       role: "organizer",
       isDeleted: false,
-      
+
       $or: [
         { firstName: { $regex: new RegExp("^" + firstName + "$", "i") } },
         {
@@ -317,13 +332,11 @@ const getOrganizerByName = async (req, res) => {
         .status(200)
         .json({ success: false, message: "No organizer found with this name" });
     }
-    return res
-      .status(200)
-      .json({
-        success: true,
-        data: organizers,
-        message: "Organizer fetched successfully",
-      });
+    return res.status(200).json({
+      success: true,
+      data: organizers,
+      message: "Organizer fetched successfully",
+    });
   } catch (err) {
     return res.status(500).json({ success: false, message: "Server Error" });
   }
@@ -350,7 +363,7 @@ const searchByPrice = async (req, res) => {
 };
 
 const Attending = async (req, res) => {
-  try{
+  try {
     const { id } = req.body;
     const event = await Event.findById(id);
     const user = await Users.findById(req.user.id);
@@ -360,10 +373,7 @@ const Attending = async (req, res) => {
         .json({ success: true, message: "Event not found" });
     }
     if (event.isFull) {
-      return res
-        .status(401)
-        .json({ success: true, message: "Event is full" });
-        
+      return res.status(401).json({ success: true, message: "Event is full" });
     }
     if (event.attendees.includes(req.user.id)) {
       return res
@@ -380,7 +390,6 @@ const Attending = async (req, res) => {
       await user.save();
       res.status(200).json({ success: true, message: "You are now attending" });
     }
-
   } catch (error) {
     res.status(500).json({ success: false, message: "Server Error" });
   }
@@ -403,5 +412,4 @@ module.exports = {
   Attending,
   getOldEvents,
   getEventsByUser,
-
 };
