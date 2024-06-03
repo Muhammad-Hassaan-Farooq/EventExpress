@@ -340,10 +340,21 @@ const getOrganizerByName = async (req, res) => {
 
 const searchByPrice = async (req, res) => {
   try {
-    const { price } = req.body;
+    let { maxPrice, minPrice } = req.body;
+    if( maxPrice === undefined) {
+      maxPrice = 1000000;
+    }
+    if( minPrice === undefined) {
+      minPrice = 0;
+    }
+    console.log(maxPrice);
+    console.log(minPrice);
     const events = await Event.find({
       isDeleted: false,
-      price: { $lte: price },
+      price: { 
+        $lte: maxPrice,
+        $gte: minPrice
+      },
       startDate: { $gte: Date.now() },
       isFull: false,
     });
@@ -354,6 +365,7 @@ const searchByPrice = async (req, res) => {
     }
     res.status(200).json({ success: true, data: events });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
