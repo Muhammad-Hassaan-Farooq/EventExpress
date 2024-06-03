@@ -37,6 +37,10 @@ const UserSchema = new mongoose.Schema({
         type: schema.Types.ObjectId,
         ref: "Users",
     },
+    attendingEvents: [{
+        type: schema.Types.ObjectId,
+        ref: "Event",
+    }],
 });
 
 const Users = mongoose.model('Users', UserSchema);

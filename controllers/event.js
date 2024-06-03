@@ -99,6 +99,22 @@ const getMyEvents = async (req, res) => {
   }
 };
 
+const getAllMyEvents = async (req, res) => {
+    try {
+      const events = await Users.findById(req.user.id).populate("attendingEvents");
+      if (!events) {
+        return res
+          .status(200)
+          .json({ success: false, message: "No events found" });
+      }
+      else {
+        res.status(200).json({ success: true, data: events, message: "Events fetched successfully"});
+      }
+    } catch (error) {
+      res.status(500).json({ success: false, message: "Server Error" });
+    }
+}
+
 const changeEventDetails = async (req, res) => {
   try {
     const { title, description, date, location, price, id } = req.body;
