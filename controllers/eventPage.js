@@ -4,7 +4,6 @@ const EventPage = require("../models/eventpage");
 const getEventPage = async (req, res) => {
   try {
     const { eventid } = req.params;
-    console.log(eventid);
 
     const eventPage = await EventPage.findOne({ event: eventid });
 
