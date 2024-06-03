@@ -21,13 +21,11 @@ const createEvent = async (req, res) => {
       createdBy: req.user.name,
       updatedBy: req.user.name,
     });
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: "Event created successfully",
-        data: newEvent,
-      });
+    res.status(201).json({
+      success: true,
+      message: "Event created successfully",
+      data: newEvent._id,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Server Error" });
@@ -137,13 +135,11 @@ const getAllMyEvents = async (req, res) => {
         .status(200)
         .json({ success: false, message: "No events found" });
     } else {
-      res
-        .status(200)
-        .json({
-          success: true,
-          data: events,
-          message: "Events fetched successfully",
-        });
+      res.status(200).json({
+        success: true,
+        data: events,
+        message: "Events fetched successfully",
+      });
     }
   } catch (error) {
     res.status(500).json({ success: false, message: "Server Error" });
