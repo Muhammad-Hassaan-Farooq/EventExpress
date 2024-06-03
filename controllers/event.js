@@ -6,29 +6,20 @@ const { get } = require("mongoose");
 // Create a new event
 const createEvent = async (req, res) => {
   try {
-    let { title, description, date, location, attendees, price } = req.body;
+    let { title, description, date, location, price, attendeesLimit } = req.body;
 
     organizer = req.user.id;
     const newEvent = await Event.create({
       title,
       description,
-      startDate: new Date(date),
       location,
       organizer,
-      attendees,
       price,
+      startDate: new Date(date),
+      attendeesLimit,
       createdBy: req.user.name,
       updatedBy: req.user.name,
     });
-
-    if (!createAttendeeList(newEvent._id)) {
-      newEvent.delete();
-      return res.status(500).json({
-        success: false,
-        message: "An error occurred while creating the event",
-      });
-    }
-
     res
       .status(201)
       .json({ success: true, message: "Event created successfully" });
@@ -38,8 +29,18 @@ const createEvent = async (req, res) => {
   }
 };
 
-// Get all events
+// Get all current events that are not full for user
 const getEvents = async (req, res) => {
+  try {
+    const events = await Event.find({ isDeleted: false, startDate: { $gte: Date.now() }, isFull: false})
+    res.status(200).json({ success: true, data: events });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+// Get all  events
+const getOldEvents = async (req, res) => {
   try {
     const events = await Event.find({ isDeleted: false });
     res.status(200).json({ success: true, data: events });
@@ -48,18 +49,24 @@ const getEvents = async (req, res) => {
   }
 };
 
-// Get a single event by id
+// Get a current single event by id by organizer
 const getEvent = async (req, res) => {
   try {
+    currDate = Date.now();
+    console.log(currDate);
     const event = await Event.find({
       organizer: req.user.id,
       isDeleted: false,
+      startDate: { $gte: currDate },
     });
     res.status(200).json({ success: true, data: event });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
+
+
 
 // Delete an event if you are the organizer of that particular event
 const deleteEvent = async (req, res) => {
@@ -88,12 +95,24 @@ const deleteEvent = async (req, res) => {
   }
 };
 
+// Get events by user's event array
+const getEventsByUser = async (req, res) => {
+  try {
+    const user = await Users.findById(req.user.id);
+    const eventIds = user.events;
+    const events = await Event.find({ _id: { $in: eventIds } });
+    res.status(200).json({ success: true, data: events });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
 // View all the events made by the specific organizer
 const getMyEvents = async (req, res) => {
   try {
     const events = await Event.find({
       organizer: req.user.id,
-      is_deleted: false,
+      isDeleted: false,
     });
     res.status(200).json({ success: true, data: events });
   } catch (error) {
@@ -103,8 +122,7 @@ const getMyEvents = async (req, res) => {
 
 const changeEventDetails = async (req, res) => {
   try {
-    const { title, description, date, location, price, id } = req.body;
-    console.log(id);
+    const { title, description, date, location, price, id, attendeesLimit } = req.body;
     let event = await Event.findOne({
       _id: id,
       isDeleted: false,
@@ -136,6 +154,9 @@ const changeEventDetails = async (req, res) => {
     if (price !== "" && price !== undefined) {
       event.price = price;
     }
+    if (attendeesLimit !== "" && attendeesLimit !== undefined) {
+      event.attendeesLimit = attendeesLimit;
+    }
     event.updatedBy = req.user.name;
     event.updatedAt = Date.now();
 
@@ -150,7 +171,7 @@ const changeEventDetails = async (req, res) => {
 const searchById = async (req, res) => {
   try {
     const id = req.body.id;
-    const event = await Event.findById(id, { isDeleted: false });
+    const event = await Event.findById(id, { isDeleted: false});
     if (!event) {
       return res
         .status(404)
@@ -172,6 +193,7 @@ const searchByDate = async (req, res) => {
     console.log(formattedDate);
     const events = await Event.find({
       isDeleted: false,
+      isFull: false,
       startDate: {
         $gte: formattedDate + "T00:00:00.000Z",
         $lt: formattedDate + "T23:59:59.999Z",
@@ -196,6 +218,8 @@ const searchByLocation = async (req, res) => {
     const events = await Event.find({
       location: { $regex: location, $options: "i" },
       isDeleted: false,
+      startDate: { $gte: Date.now() },
+      isFull: false,
     });
     if (events.length === 0) {
       return res
@@ -214,6 +238,8 @@ const searchByOrganizer = async (req, res) => {
     const events = await Event.find({
       organizer: id,
       isDeleted: false,
+      startDate: { $gte: Date.now() },
+      isFull: false,
     });
     if (events.length === 0) {
       return res
@@ -232,6 +258,8 @@ const searchByName = async (req, res) => {
     const events = await Event.find({
       title: { $regex: name, $options: "i" },
       isDeleted: false,
+      startDate: { $gte: Date.now() },
+      isFull: false,
     });
     if (events.length === 0) {
       return res
@@ -254,6 +282,7 @@ const getOrganizerByName = async (req, res) => {
     const searchCriteria = {
       role: "organizer",
       isDeleted: false,
+      
       $or: [
         { firstName: { $regex: new RegExp("^" + firstName + "$", "i") } },
         {
@@ -290,6 +319,8 @@ const searchByPrice = async (req, res) => {
     const events = await Event.find({
       isDeleted: false,
       price: { $lte: price },
+      startDate: { $gte: Date.now() },
+      isFull: false,
     });
     if (events.length === 0) {
       return res
@@ -302,15 +333,42 @@ const searchByPrice = async (req, res) => {
   }
 };
 
-async function createAttendeeList(eventID) {
-  try {
-    const attendee = new Attendees({ eventID });
-    await attendee.save();
-    return true;
+const Attending = async (req, res) => {
+  try{
+    const { id } = req.body;
+    const event = await Event.findById(id);
+    const user = await Users.findById(req.user.id);
+    if (!event) {
+      return res
+        .status(404)
+        .json({ success: true, message: "Event not found" });
+    }
+    if (event.isFull) {
+      return res
+        .status(401)
+        .json({ success: true, message: "Event is full" });
+        
+    }
+    if (event.attendees.includes(req.user.id)) {
+      return res
+        .status(401)
+        .json({ success: true, message: "You are already attending" });
+    } else {
+      event.attendees.push(req.user.id);
+      event.attendeesCount += 1;
+      await event.save();
+      if (event.attendeesCount >= event.attendeesLimit) {
+        event.isFull = true;
+      }
+      user.events.push(event.id);
+      await user.save();
+      res.status(200).json({ success: true, message: "You are now attending" });
+    }
+
   } catch (error) {
-    return false;
+    res.status(500).json({ success: false, message: "Server Error" });
   }
-}
+};
 
 module.exports = {
   createEvent,
@@ -324,7 +382,10 @@ module.exports = {
   searchByOrganizer,
   searchByName,
   searchById,
-
   searchByPrice,
   getOrganizerByName,
+  Attending,
+  getOldEvents,
+  getEventsByUser,
+
 };

@@ -8,7 +8,7 @@ const checkAdmin = async (req, res, next) => {
       .status(400)
       .json({
         success: false,
-        message: "You are not authorized to perform this action",
+        message: "You are not authorized to perform this action2",
       });
   }
 };
