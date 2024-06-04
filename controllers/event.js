@@ -215,9 +215,7 @@ const searchByDate = async (req, res) => {
     const date = req.body.date;
 
     const startDate = new Date(date);
-    console.log(startDate);
     const formattedDate = startDate.toISOString().split("T")[0];
-    console.log(formattedDate);
     const events = await Event.find({
       isDeleted: false,
       isFull: false,

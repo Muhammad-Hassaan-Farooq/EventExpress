@@ -32,9 +32,6 @@ const setEventPage = async (req, res) => {
     });
 
     await eventPage.save();
-
-    console.log(eventPage);
-
     res.status(200).json({ success: true, message: "Event page created" });
   } catch (error) {
     console.log(error);

@@ -9,17 +9,17 @@ const signUp = async (req, res) => {
     if (!email.match(/^\S+@\S+\.\S+$/))
       return res
         .status(200)
-        .json({ success: true, msg: "Invalid Email format", data: [] }); // Check the email format
+        .json({ success: false, msg: "Invalid Email format", data: [] }); // Check the email format
     let user = await Users.findOne({ email });
 
     if (user) {
       return res
-        .status(409)
-        .json({ success: true, message: "User already exists" });
+        .status(200)
+        .json({ success: false, message: "User already exists" });
     }
     if (password.length < 8) {
-      return res.status(400).json({
-        success: true,
+      return res.status(200).json({
+        success: false,
         message: "Password must be at least 8 characters long",
       });
     }
@@ -28,7 +28,7 @@ const signUp = async (req, res) => {
       ...req.body,
       password: await bcrypt.hash(password, 5),
     });
-    return res.status(201).json({ success: true, message: "User created" });
+    return res.status(200).json({ success: true, message: "User created" });
   } catch (error) {
     res.status(500).json({ success: false, message: "Server Error" });
   }
@@ -39,13 +39,13 @@ const login = async (req, res) => {
     const { email, password } = req.body;
     const user = await Users.findOne({ email, isDeleted: false });
     if (!user)
-      return res.status(404).json({ success: true, message: "User not found" });
+      return res.status(200).json({ success: false, message: "User not found" });
 
     const passwordCheck = await bcrypt.compare(password, user.password);
     if (!passwordCheck)
       return res
-        .status(400)
-        .json({ success: true, message: "Invalid password" });
+        .status(200)
+        .json({ success: false, message: "Invalid password" });
 
     const token = jwt.sign(
       {
@@ -74,7 +74,9 @@ const forgetPassword = async (req, res) => {
     const user = await Users.findOne({ email, isDeleted: false });
 
     if (!user) {
-      return res.status(200).json({ success: false, message: "User not found" });
+      return res
+        .status(200)
+        .json({ success: false, message: "User not found" });
     }
 
     const newPassword = Math.random().toString(36).slice(-8);
