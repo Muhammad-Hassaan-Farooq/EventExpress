@@ -6,7 +6,7 @@ const { get } = require("mongoose");
 // Create a new event
 const createEvent = async (req, res) => {
   try {
-    let { title, description, date, location, price, attendeesLimit } =
+    let { title, description, date, location, price, attendeesLimit, image } =
       req.body;
 
     organizer = req.user.id;
@@ -15,6 +15,7 @@ const createEvent = async (req, res) => {
       description,
       location,
       organizer,
+      image,
       price,
       startDate: new Date(date),
       attendeesLimit,
@@ -106,6 +107,7 @@ const getEventsByUser = async (req, res) => {
     const user = await Users.findById(req.user.id);
     const eventIds = user.events;
     const events = await Event.find({ _id: { $in: eventIds } });
+
     res.status(200).json({ success: true, data: events });
   } catch (error) {
     res.status(500).json({ success: false, message: "Server Error" });
@@ -148,8 +150,18 @@ const getAllMyEvents = async (req, res) => {
 
 const changeEventDetails = async (req, res) => {
   try {
-    const { title, description, date, location, price, id, attendeesLimit } =
-      req.body;
+    const {
+      title,
+      description,
+      date,
+      location,
+      price,
+      id,
+      attendeesLimit,
+      image,
+    } = req.body;
+
+    console.log(req.body);
     let event = await Event.findOne({
       _id: id,
       isDeleted: false,
@@ -173,7 +185,7 @@ const changeEventDetails = async (req, res) => {
       event.description = description;
     }
     if (date !== "" && date !== undefined) {
-      event.date = date;
+      event.startDate = date;
     }
     if (location !== "" && location !== undefined) {
       event.location = location;
@@ -183,6 +195,9 @@ const changeEventDetails = async (req, res) => {
     }
     if (attendeesLimit !== "" && attendeesLimit !== undefined) {
       event.attendeesLimit = attendeesLimit;
+    }
+    if (image !== "" && image !== undefined) {
+      event.image = image;
     }
     event.updatedBy = req.user.name;
     event.updatedAt = Date.now();
@@ -385,12 +400,10 @@ const Attending = async (req, res) => {
       return res.status(200).json({ success: false, message: "Event is full" });
     }
     if (event.attendees.includes(req.user.id)) {
-      return res
-        .status(200)
-        .json({
-          success: false,
-          message: "You are already attending this event",
-        });
+      return res.status(200).json({
+        success: false,
+        message: "You are already attending this event",
+      });
     } else {
       event.attendees.push(req.user.id);
       event.attendeesCount += 1;

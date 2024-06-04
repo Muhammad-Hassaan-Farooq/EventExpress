@@ -13,19 +13,23 @@ const eventSchema = new mongoose.Schema({
   startDate: {
     type: Date,
     required: true,
-    default: Date.now
+    default: Date.now,
   },
   endDate: {
     type: Date,
     required: true,
-    default: Date.now
+    default: Date.now,
   },
   location: {
     type: String,
-    required: true
+    required: true,
   },
   organizer: {
     type: String, // Reference to the User model
+  },
+  image: {
+    type: String,
+    default: null,
   },
   attendees: {
     type: [String], // Assuming attendees are represented by their usernames or IDs
@@ -59,23 +63,23 @@ const eventSchema = new mongoose.Schema({
     type: Date,
     default: null,
   },
-  isDeleted:{
+  isDeleted: {
     type: Boolean,
     default: false,
   },
-  createdBy:{
+  createdBy: {
     type: String,
-    required: true,  
+    required: true,
   },
-  updatedBy:{
+  updatedBy: {
     type: String,
     default: null,
-    required:true,
+    required: true,
   },
-  deletedBy:{
+  deletedBy: {
     type: String,
     default: null,
-  }
+  },
 });
 
 // Create the Event model using the schema
