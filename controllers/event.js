@@ -9,6 +9,12 @@ const createEvent = async (req, res) => {
     let { title, description, date, location, price, attendeesLimit, image } =
       req.body;
 
+    if (new Date(date) < Date.now()) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Date should be in the future" });
+    }
+
     organizer = req.user.id;
     const newEvent = await Event.create({
       title,
@@ -28,7 +34,6 @@ const createEvent = async (req, res) => {
       data: newEvent._id,
     });
   } catch (error) {
-    console.log(error);
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
@@ -61,7 +66,7 @@ const getOldEvents = async (req, res) => {
 const getEvent = async (req, res) => {
   try {
     currDate = Date.now();
-    console.log(currDate);
+
     const event = await Event.find({
       organizer: req.user.id,
       isDeleted: false,
@@ -69,7 +74,6 @@ const getEvent = async (req, res) => {
     });
     res.status(200).json({ success: true, data: event });
   } catch (error) {
-    console.log(error);
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
@@ -161,7 +165,6 @@ const changeEventDetails = async (req, res) => {
       image,
     } = req.body;
 
-    console.log(req.body);
     let event = await Event.findOne({
       _id: id,
       isDeleted: false,
@@ -205,7 +208,6 @@ const changeEventDetails = async (req, res) => {
     await event.save();
     res.status(200).json({ success: true, message: "Event details changed" });
   } catch (error) {
-    console.log(error);
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
@@ -242,8 +244,8 @@ const searchByDate = async (req, res) => {
 
     if (events.length === 0) {
       return res
-        .status(404)
-        .json({ success: true, message: "No events found" });
+        .status(200)
+        .json({ success: false, message: "No events found" });
     }
 
     res.status(200).json({ success: true, data: events });
@@ -360,8 +362,7 @@ const searchByPrice = async (req, res) => {
     if (minPrice === undefined) {
       minPrice = 0;
     }
-    console.log(maxPrice);
-    console.log(minPrice);
+
     const events = await Event.find({
       isDeleted: false,
       price: {
@@ -378,7 +379,6 @@ const searchByPrice = async (req, res) => {
     }
     res.status(200).json({ success: true, data: events });
   } catch (error) {
-    console.log(error);
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
