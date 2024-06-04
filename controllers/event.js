@@ -341,19 +341,19 @@ const getOrganizerByName = async (req, res) => {
 const searchByPrice = async (req, res) => {
   try {
     let { maxPrice, minPrice } = req.body;
-    if( maxPrice === undefined) {
+    if (maxPrice === undefined) {
       maxPrice = 1000000;
     }
-    if( minPrice === undefined) {
+    if (minPrice === undefined) {
       minPrice = 0;
     }
     console.log(maxPrice);
     console.log(minPrice);
     const events = await Event.find({
       isDeleted: false,
-      price: { 
+      price: {
         $lte: maxPrice,
-        $gte: minPrice
+        $gte: minPrice,
       },
       startDate: { $gte: Date.now() },
       isFull: false,
@@ -380,20 +380,23 @@ const Attending = async (req, res) => {
         .status(404)
         .json({ success: true, message: "Event not found" });
     }
+    if (event.attendeesCount >= event.attendeesLimit) {
+      event.isFull = true;
+    }
     if (event.isFull) {
-      return res.status(401).json({ success: true, message: "Event is full" });
+      return res.status(200).json({ success: false, message: "Event is full" });
     }
     if (event.attendees.includes(req.user.id)) {
       return res
-        .status(401)
-        .json({ success: true, message: "You are already attending" });
+        .status(200)
+        .json({
+          success: false,
+          message: "You are already attending this event",
+        });
     } else {
       event.attendees.push(req.user.id);
       event.attendeesCount += 1;
       await event.save();
-      if (event.attendeesCount >= event.attendeesLimit) {
-        event.isFull = true;
-      }
       user.events.push(event.id);
       await user.save();
       res.status(200).json({ success: true, message: "You are now attending" });
