@@ -314,26 +314,27 @@ const searchByName = async (req, res) => {
   }
 };
 
+
 const getOrganizerByName = async (req, res) => {
   const fullName = req.body.name.trim();
-  const names = fullName.split(" ");
+  const names = fullName.split(' ');
   const firstName = names[0];
-  const lastName = names.slice(1).join(" ");
-
+  const lastName = names.slice(1).join(' ');
   try {
     const searchCriteria = {
       role: "organizer",
       isDeleted: false,
-
       $or: [
-        { firstName: { $regex: new RegExp("^" + firstName + "$", "i") } },
-        {
+        { firstName: { $regex: new RegExp('^' + firstName + '$', 'i') } },
+        { 
           $and: [
-            { firstName: { $regex: new RegExp("^" + firstName + "$", "i") } },
-            { lastName: { $regex: new RegExp("^" + lastName + "$", "i") } },
-          ],
+            { firstName: { $regex: new RegExp('^' + firstName + '$', 'i') } },
+            { lastName: { $regex: new RegExp('^' + lastName + '$', 'i') } }
+          ]
         },
-      ],
+        {lastName: { $regex: new RegExp('^' + firstName + '$', 'i') }},
+        {lastName: { $regex: new RegExp('^' + lastName + '$', 'i') }}
+      ]
     };
 
     const organizers = await Users.find(searchCriteria).select("-password");
@@ -343,15 +344,11 @@ const getOrganizerByName = async (req, res) => {
         .status(200)
         .json({ success: false, message: "No organizer found with this name" });
     }
-    return res.status(200).json({
-      success: true,
-      data: organizers,
-      message: "Organizer fetched successfully",
-    });
+    return res.status(200).json({ success: true, data: organizers, message: "Organizer fetched successfully" });
   } catch (err) {
     return res.status(500).json({ success: false, message: "Server Error" });
   }
-};
+}
 
 const searchByPrice = async (req, res) => {
   try {
