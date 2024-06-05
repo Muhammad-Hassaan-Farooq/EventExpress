@@ -22,7 +22,6 @@ const getOrganizerByName = async (req, res) => {
   const names = fullName.split(' ');
   const firstName = names[0];
   const lastName = names.slice(1).join(' ');
-
   try {
     const searchCriteria = {
       role: "organizer",
@@ -34,7 +33,9 @@ const getOrganizerByName = async (req, res) => {
             { firstName: { $regex: new RegExp('^' + firstName + '$', 'i') } },
             { lastName: { $regex: new RegExp('^' + lastName + '$', 'i') } }
           ]
-        }
+        },
+        {lastName: { $regex: new RegExp('^' + firstName + '$', 'i') }},
+        {lastName: { $regex: new RegExp('^' + lastName + '$', 'i') }}
       ]
     };
 
@@ -77,7 +78,6 @@ const getUserByName = async (req, res) => {
   const names = fullName.split(' ');
   const firstName = names[0];
   const lastName = names.slice(1).join(' ');
-
   try {
     const searchCriteria = {
       role: "user",
@@ -89,7 +89,9 @@ const getUserByName = async (req, res) => {
             { firstName: { $regex: new RegExp('^' + firstName + '$', 'i') } },
             { lastName: { $regex: new RegExp('^' + lastName + '$', 'i') } }
           ]
-        }
+        },
+        {lastName: { $regex: new RegExp('^' + firstName + '$', 'i') }},
+        {lastName: { $regex: new RegExp('^' + lastName + '$', 'i') }}
       ]
     };
 
