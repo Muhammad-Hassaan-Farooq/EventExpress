@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const app = express();
-const port = 3000;
+const port = process.env.port || 3000;
 
 const authRouter = require("./routes/auth");
 const eventRouter = require("./routes/event");
@@ -30,7 +30,9 @@ app.use("/accountManagement", accountManagementRouter);
 
 const connectDB = async () => {
   try {
-    await mongoose.connect("mongodb://localhost:27017/EventExpress");
+    await mongoose.connect(
+      "mongodb+srv://muhammadhassaanf:UQEAV9oCEgduxxs0@eventcluster.8fcnp6e.mongodb.net/?retryWrites=true&w=majority&appName=EventCluster"
+    );
     console.log("Connected to the database");
     app.listen(port, () => {
       console.log(`Server is running on port ${port}`);
