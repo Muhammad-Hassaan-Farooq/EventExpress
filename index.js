@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -31,7 +32,7 @@ app.use("/accountManagement", accountManagementRouter);
 const connectDB = async () => {
   try {
     await mongoose.connect(
-      "mongodb+srv://muhammadhassaanf:UQEAV9oCEgduxxs0@eventcluster.8fcnp6e.mongodb.net/?retryWrites=true&w=majority&appName=EventCluster"
+      `mongodb+srv://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@eventcluster.8fcnp6e.mongodb.net/?retryWrites=true&w=majority&appName=EventCluster`
     );
     console.log("Connected to the database");
     app.listen(port, () => {
